@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "VinylVault",
+    "slug": "vinylvault",
+    "scheme": "vinylvault",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "backgroundColor": "#070B14",
+    "ios": {
+      "bundleIdentifier": "com.vinylvault.app",
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "VinylVault uses the camera to photograph records and read barcodes for identification, grading and pressing checks."
+      }
+    },
+    "android": {
+      "package": "com.vinylvault.app",
+      "permissions": ["android.permission.CAMERA"]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-sharing",
+      "expo-image",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "VinylVault uses the camera to photograph records and read barcodes for identification, grading and pressing checks.",
+          "barcodeScannerEnabled": true
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": { "deploymentTarget": "16.4" },
+          "android": { "usesCleartextTraffic": true, "buildArchs": ["arm64-v8a"] }
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "VinylVault opens photos you choose so it can identify and check a record.",
+          "cameraPermission": "VinylVault uses the camera to photograph records and read barcodes for identification, grading and pressing checks."
+        }
+      ]
+    ],
+    "experiments": { "typedRoutes": true }
+  }
+}

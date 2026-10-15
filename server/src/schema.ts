@@ -65,7 +65,9 @@ export const VISION_SCHEMA = {
           label: { type: 'string', description: 'Record label on this pressing.' },
           catalog_number: { type: 'string', description: 'Catalog number of this pressing, e.g. "PCS 7088".' },
           country: { type: 'string', description: 'Country of pressing, e.g. UK, US, Germany, Europe, Japan.' },
-          format: { type: 'string', enum: ['LP', '12" Single', '10"', '7" Single'] },
+          // No inch marks here: a literal " in an enum value comes back unescaped and breaks the JSON.
+          // index.ts maps these to the app's labels (12in Single → 12" Single).
+          format: { type: 'string', enum: ['LP', '12in Single', '10in', '7in Single'] },
           discs: { type: 'integer', description: 'Number of discs.' },
           genre: { type: 'string', enum: ['Rock', 'Pop', 'Jazz', 'Soul & Funk', 'Hip-Hop', 'Electronic', 'Reggae', 'Folk & Country', 'Blues', 'Classical', 'Soundtrack', 'Other'] },
           pressing_type: { type: 'string', enum: ['original', 'reissue', 'unknown'], description: 'original = first pressing of the release in its original era; reissue = any later pressing.' },

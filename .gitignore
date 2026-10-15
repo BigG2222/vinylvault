@@ -7,3 +7,4 @@ android/
 *.log
 expo-env.d.ts
 server/.env
+server/last-bad-response.json

@@ -12,6 +12,7 @@
  * charging for an app that shows Discogs data.
  */
 import Anthropic from '@anthropic-ai/sdk';
+import { writeFileSync } from 'node:fs';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { discogsEnabled, findRelease, getPriceData, type ReleaseQuery } from './discogs.ts';
 import { SYSTEM_PROMPT, VISION_SCHEMA } from './schema.ts';
@@ -74,26 +75,46 @@ async function analyze(body: AnalyzeBody) {
   ].filter(Boolean);
   content.push({ type: 'text', text: `${notes.join('\n')}\n\nAnalyze this record.` });
 
-  const response = await client.beta.messages.create({
-    model: MODEL,
-    max_tokens: 16000,
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    output_config: {
-      effort: 'high',
-      format: { type: 'json_schema', schema: VISION_SCHEMA as unknown as Record<string, unknown> },
-    },
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content }],
-  });
+  // One retry covers the occasional response that isn't valid JSON.
+  for (let attempt = 1; ; attempt++) {
+    const response = await client.beta.messages.create({
+      model: MODEL,
+      max_tokens: 16000,
+      betas: ['server-side-fallback-2026-07-01'],
+      fallbacks: 'default',
+      output_config: {
+        effort: 'high',
+        format: { type: 'json_schema', schema: VISION_SCHEMA as unknown as Record<string, unknown> },
+      },
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content }],
+    });
 
-  if (response.stop_reason === 'refusal') throw new HttpError(422, 'The images could not be analyzed.');
-  if (response.stop_reason === 'max_tokens') throw new HttpError(502, 'Analysis was cut off.');
-  const text = response.content.find((b): b is Anthropic.Beta.BetaTextBlock => b.type === 'text')?.text;
-  if (!text) throw new HttpError(502, 'Empty model response.');
-  const result = JSON.parse(text);
-  if (discogsEnabled()) await enrichWithDiscogs(result.matches ?? [], hints.barcode);
-  return { ...result, model: response.model };
+    console.log(`  ${body.images.length} photo(s), model: ${response.model}, stop: ${response.stop_reason}, output tokens: ${response.usage.output_tokens}`);
+    if (response.stop_reason === 'refusal') throw new HttpError(422, 'The images could not be analyzed.');
+    if (response.stop_reason === 'max_tokens') throw new HttpError(502, 'Analysis was cut off.');
+    // The JSON can arrive split across several text blocks, so join them all.
+    const text = response.content
+      .filter((b): b is Anthropic.Beta.BetaTextBlock => b.type === 'text')
+      .map((b) => b.text)
+      .join('');
+    if (!text) throw new HttpError(502, 'Empty model response.');
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (e) {
+      const blocks = response.content.map((b) => b.type).join(', ');
+      console.error(`  Unreadable JSON (attempt ${attempt}; blocks: ${blocks}): ${(e as Error).message}`);
+      writeFileSync(new URL('../last-bad-response.json', import.meta.url), JSON.stringify(response.content, null, 2));
+      if (attempt < 2) continue;
+      throw new HttpError(502, 'The analysis came back unreadable.');
+    }
+    for (const m of result.matches ?? []) {
+      if (typeof m.format === 'string') m.format = m.format.replace(/^(\d+)in\b/, '$1"');
+    }
+    if (discogsEnabled()) await enrichWithDiscogs(result.matches ?? [], hints.barcode);
+    return { ...result, model: response.model };
+  }
 }
 
 /** Look each candidate up on Discogs so the app can link to it and price it. Failures leave the match as-is. */
@@ -174,12 +195,14 @@ createServer(async (req, res) => {
   if (req.method === 'OPTIONS') return void res.writeHead(204).end();
 
   const url = new URL(req.url ?? '/', 'http://localhost');
+  if (url.pathname !== '/health') console.log(`${new Date().toLocaleTimeString()} ${req.method} ${url.pathname}`);
   try {
     if (req.method === 'GET' && url.pathname === '/health') return send(res, 200, { ok: true, model: MODEL, discogs: discogsEnabled() });
     if (req.method === 'GET' && url.pathname === '/v1/price') return send(res, 200, await price(url));
     if (req.method === 'POST' && url.pathname === '/v1/analyze') return send(res, 200, await analyze(await readJson(req)));
     return send(res, 404, { error: 'Not found' });
   } catch (e) {
+    console.error(`${new Date().toLocaleTimeString()} ${req.method} ${url.pathname} failed: ${e instanceof Error ? `${e.constructor.name}: ${e.message}` : String(e)}`);
     if (e instanceof HttpError) return send(res, e.status, { error: e.message });
     if (e instanceof Anthropic.RateLimitError) return send(res, 503, { error: 'Busy, retry shortly.' });
     if (e instanceof Anthropic.AuthenticationError) {

@@ -1,3 +1,4 @@
+import { serverHeaders } from '@/services/serverHeaders';
 import { parseVisionJson, ParseError } from '../parse';
 import { VisionError, type VisionProvider, type VisionRequest, type VisionResponse } from '../types';
 
@@ -25,7 +26,7 @@ export class ProxyVisionProvider implements VisionProvider {
     try {
       res = await fetch(`${this.baseUrl.replace(/\/$/, '')}/v1/analyze`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...serverHeaders() },
         body: JSON.stringify({
           images: req.images,
           confirmedIdentity: req.confirmedIdentity,
@@ -47,6 +48,7 @@ export class ProxyVisionProvider implements VisionProvider {
     }
 
     if (res.status === 422) throw new VisionError('The images could not be analyzed. Try clearer photos.', 'refused');
+    if (res.status === 429) throw new VisionError('Daily scan limit reached.', 'limit');
     if (!res.ok) throw new VisionError(`Analysis service error (${res.status}).`, 'server');
 
     try {

@@ -63,6 +63,7 @@ export default function Processing() {
           refused: { title: "We couldn't read this record", body: 'Try again with the whole cover or label in frame, in even light, without glare.' },
           bad_response: { title: 'Something went wrong', body: 'We got an incomplete result and would rather not guess. Please try again.' },
           server: { title: 'Service unavailable', body: 'Our analysis service had a problem. Your photos are kept. Please try again.' },
+          limit: { title: 'Daily scans used', body: "You've reached today's scan limit, or VinylVault is very busy today. Your photos are kept, so try again tomorrow." },
         };
         setError(copy[e.kind]);
       } else {

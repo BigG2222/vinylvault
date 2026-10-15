@@ -5,12 +5,13 @@ import { useRef, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Row, Text } from '@/components/ui';
-import { FALLBACK_PRICING, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS } from '@/config';
+import { FALLBACK_PRICING, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, FREE_LAUNCH } from '@/config';
 import { useApp } from '@/store';
 import { colors, radii, spacing } from '@/theme';
 
 type Page = { key: string };
-const PAGES: Page[] = [{ key: 'what' }, { key: 'tips' }, { key: 'pricing' }];
+// The pricing page only makes sense once subscriptions are on.
+const PAGES: Page[] = FREE_LAUNCH ? [{ key: 'what' }, { key: 'tips' }] : [{ key: 'what' }, { key: 'tips' }, { key: 'pricing' }];
 
 export default function Onboarding() {
   const { width } = useWindowDimensions();

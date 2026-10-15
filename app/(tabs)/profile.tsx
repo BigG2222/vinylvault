@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { Button, Chip, Row, Screen, SectionHeader, Surface, Text } from '@/components/ui';
-import { env, FALLBACK_PRICING, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, SUPPORT_EMAIL } from '@/config';
+import { env, FALLBACK_PRICING, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, FREE_LAUNCH, SUPPORT_EMAIL } from '@/config';
 import type { Scenario } from '@/data/generate';
 import { isOcrAvailable } from '@/services/ondevice/ocr';
 import { isMockStore, manageSubscription } from '@/services/subscriptions';
@@ -47,6 +48,7 @@ export default function Profile() {
   const clearSampleData = useApp((s) => s.clearSampleData);
   const { health, check } = useServerHealth();
   const remaining = scansRemaining({ usage, subscription });
+  const premium = subscription.isPremium && !FREE_LAUNCH;
   const owned = collection.filter((c) => !c.isSample).length;
   const hasSamples = collection.some((c) => c.isSample);
 
@@ -61,32 +63,37 @@ export default function Profile() {
     <Screen>
       <Text variant="title">Profile</Text>
 
-      <Surface style={{ gap: spacing.lg, borderColor: subscription.isPremium ? colors.gold + '66' : colors.border }}>
+      <Surface style={{ gap: spacing.lg, borderColor: premium ? colors.gold + '66' : colors.border }}>
         <Row style={{ justifyContent: 'space-between' }}>
           <View>
             <Text variant="label" tone="muted">
               Plan
             </Text>
-            <Text variant="title" tone={subscription.isPremium ? 'gold' : 'primary'}>
-              {subscription.isPremium ? 'Premium' : 'Free'}
+            <Text variant="title" tone={premium ? 'gold' : 'primary'}>
+              {premium ? 'Premium' : 'Free'}
             </Text>
           </View>
-          {subscription.isPremium && <Ionicons name="ribbon" size={28} color={colors.gold} />}
+          {premium && <Ionicons name="ribbon" size={28} color={colors.gold} />}
         </Row>
 
-        {subscription.isPremium ? (
+        {premium ? (
           <Text variant="caption" tone="secondary">
             {subscription.activePlan === 'yearly' ? `Yearly · ${FALLBACK_PRICING.yearly.label}/yr` : `Monthly · ${FALLBACK_PRICING.monthly.label}/mo`}
             {subscription.expiresAt ? ` · ${subscription.willRenew ? 'Renews' : 'Ends'} ${formatDate(subscription.expiresAt, true)}` : ''}
           </Text>
         ) : (
           <View style={{ gap: spacing.md }}>
-            <Meter label="Free scans today" value={FREE_DAILY_SCANS - remaining} max={FREE_DAILY_SCANS} caption={`${remaining} left · resets at midnight`} />
-            <Meter label="Collection" value={owned} max={FREE_COLLECTION_LIMIT} caption={`${owned} of ${FREE_COLLECTION_LIMIT} records saved`} />
+            <Meter label={FREE_LAUNCH ? 'Scans today' : 'Free scans today'} value={FREE_DAILY_SCANS - remaining} max={FREE_DAILY_SCANS} caption={`${remaining} left · resets at midnight`} />
+            {!FREE_LAUNCH && <Meter label="Collection" value={owned} max={FREE_COLLECTION_LIMIT} caption={`${owned} of ${FREE_COLLECTION_LIMIT} records saved`} />}
+            {FREE_LAUNCH && (
+              <Text variant="caption" tone="secondary">
+                VinylVault is free while it's new. Every feature is included.
+              </Text>
+            )}
           </View>
         )}
 
-        {subscription.isPremium ? (
+        {FREE_LAUNCH ? null : premium ? (
           <Button label="Manage or cancel subscription" variant="secondary" icon="settings-outline" onPress={manage} />
         ) : (
           <View style={{ gap: spacing.sm }}>
@@ -124,8 +131,9 @@ export default function Profile() {
       <SectionHeader title="Support" />
       <Surface style={{ paddingVertical: spacing.xs }}>
         <LinkRow icon="flag-outline" label="Report an incorrect result" onPress={() => router.push('/report')} />
-        <LinkRow icon="chatbubble-ellipses-outline" label={subscription.isPremium ? 'Priority support' : 'Contact support'} onPress={() => support(subscription.isPremium ? 'Priority support' : 'Support')} />
+        <LinkRow icon="chatbubble-ellipses-outline" label={premium ? 'Priority support' : 'Contact support'} onPress={() => support(premium ? 'Priority support' : 'Support')} />
         <LinkRow icon="bulb-outline" label="Send feedback" onPress={() => support('Feedback')} />
+        {usingServer() && <LinkRow icon="lock-closed-outline" label="Privacy policy" onPress={() => Linking.openURL(`${env.visionProxyUrl.replace(/\/$/, '')}/privacy`)} />}
         <LinkRow
           icon="document-text-outline"
           label={`Reports submitted (${reports.length})`}
@@ -139,7 +147,7 @@ export default function Profile() {
           <SectionHeader title="Data" />
           <Surface style={{ gap: spacing.md }}>
             <Text variant="caption" tone="secondary">
-              Sample records were added so you could explore the app. They don't count toward your free limit.
+              Sample records were added so you could explore the app. They don't count toward any limit.
             </Text>
             <Button
               label="Remove sample records"
@@ -187,7 +195,7 @@ export default function Profile() {
       )}
 
       <Text variant="caption" tone="muted" align="center">
-        VinylVault 0.1.0 · Grades and values are estimates, not appraisals.
+        VinylVault {Constants.expoConfig?.version} · Grades and values are estimates, not appraisals.
       </Text>
     </Screen>
   );

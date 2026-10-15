@@ -3,6 +3,7 @@ import { findCatalogEntry, identityKey } from '@/data/catalog';
 import { buildPrice } from '@/data/generate';
 import type { ConditionEstimate, Grade, PriceEstimate, RecordIdentity } from '@/types';
 import { hashString } from '@/utils/format';
+import { serverHeaders } from '@/services/serverHeaders';
 import { GRADES, rangeForCondition } from '@/utils/grading';
 
 /**
@@ -75,7 +76,7 @@ class ServerPriceProvider implements PriceProvider {
     try {
       const controller = new AbortController();
       const t = setTimeout(() => controller.abort(), 20_000);
-      const res = await fetch(`${this.baseUrl.replace(/\/$/, '')}/v1/price?${q}`, { signal: controller.signal });
+      const res = await fetch(`${this.baseUrl.replace(/\/$/, '')}/v1/price?${q}`, { signal: controller.signal, headers: serverHeaders() });
       clearTimeout(t);
       if (res.ok) {
         const price = priceFromServer((await res.json()) as ServerPrice, condition);

@@ -1,9 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { DEFAULT_TAGS, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, RECENT_SCANS_KEPT } from '@/config';
+import { DEFAULT_TAGS, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, FREE_LAUNCH, RECENT_SCANS_KEPT } from '@/config';
 import type { Scenario } from '@/data/generate';
 import { buildSampleData } from '@/data/samples';
+import { setDeviceId } from '@/services/serverHeaders';
 import type { SubscriptionState } from '@/services/subscriptions';
 import type { CollectionRecord, RecordIdentity, ScanResult, ScanSource, WrongResultReport } from '@/types';
 import { todayKey, uid } from '@/utils/format';
@@ -13,9 +14,15 @@ interface Prefs {
   demoScenario: Scenario | 'auto';
 }
 
+/** During the free launch everyone gets every feature; only the daily scan cap applies. */
+const LAUNCH_SUBSCRIPTION: SubscriptionState = { isPremium: true, willRenew: false, expiresAt: null, activePlan: null, managementUrl: null };
+const FREE_SUBSCRIPTION: SubscriptionState = { isPremium: false, willRenew: false, expiresAt: null, activePlan: null, managementUrl: null };
+
 interface AppState {
   hydrated: boolean;
   onboarded: boolean;
+  /** Random per-install ID the server uses for its daily limits. Not tied to the person. */
+  deviceId: string;
   collection: CollectionRecord[];
   scans: ScanResult[];
   usage: { day: string; count: number };
@@ -42,10 +49,11 @@ export const useApp = create<AppState>()(
     (set, get) => ({
       hydrated: false,
       onboarded: false,
+      deviceId: uid('dev_'),
       collection: [],
       scans: [],
       usage: { day: todayKey(), count: 0 },
-      subscription: { isPremium: false, willRenew: false, expiresAt: null, activePlan: null, managementUrl: null },
+      subscription: FREE_LAUNCH ? LAUNCH_SUBSCRIPTION : FREE_SUBSCRIPTION,
       prefs: { viewMode: 'grid', demoScenario: 'auto' },
       reports: [],
       customTags: [],
@@ -118,6 +126,7 @@ export const useApp = create<AppState>()(
       },
 
       setSubscription(subscription) {
+        if (FREE_LAUNCH) return;
         set({ subscription });
       },
 
@@ -139,7 +148,20 @@ export const useApp = create<AppState>()(
       name: 'vinylvault-v1',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: ({ hydrated, ...rest }) => rest,
-      onRehydrateStorage: () => () => useApp.setState({ hydrated: true }),
+      // Installs from before these fields existed: give them a device ID, and keep the launch unlock in force.
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<AppState>;
+        return {
+          ...current,
+          ...p,
+          deviceId: p.deviceId || current.deviceId,
+          subscription: FREE_LAUNCH ? LAUNCH_SUBSCRIPTION : (p.subscription ?? current.subscription),
+        };
+      },
+      onRehydrateStorage: () => () => {
+        setDeviceId(useApp.getState().deviceId);
+        useApp.setState({ hydrated: true });
+      },
     },
   ),
 );
@@ -147,7 +169,7 @@ export const useApp = create<AppState>()(
 // ---- Derived selectors -----------------------------------------------------
 
 export function scansRemaining(s: Pick<AppState, 'usage' | 'subscription'>): number {
-  if (s.subscription.isPremium) return Infinity;
+  if (s.subscription.isPremium && !FREE_LAUNCH) return Infinity;
   const used = s.usage.day === todayKey() ? s.usage.count : 0;
   return Math.max(0, FREE_DAILY_SCANS - used);
 }

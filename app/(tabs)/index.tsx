@@ -5,10 +5,11 @@ import { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { RecentScanRow } from '@/components/record/RecordListItems';
 import { EmptyState, Row, Screen, SectionHeader, Surface, Text } from '@/components/ui';
-import { FREE_DAILY_SCANS } from '@/config';
+import { FREE_DAILY_SCANS, FREE_LAUNCH } from '@/config';
 import { collectionTotals, scansRemaining, useApp, useScanSession } from '@/store';
 import { colors, radii, spacing } from '@/theme';
 import { compactMoney, money } from '@/utils/format';
+import { showScanLimit } from '@/utils/scanLimit';
 
 const TIPS = [
   'Photograph the label straight on. It is where most bootlegs give themselves away.',
@@ -27,11 +28,12 @@ export default function Home() {
 
   const totals = useMemo(() => collectionTotals(collection), [collection]);
   const remaining = scansRemaining({ usage, subscription });
+  const unlimited = subscription.isPremium && !FREE_LAUNCH;
   const tip = TIPS[new Date().getDate() % TIPS.length];
 
   const startScan = () => {
     if (remaining <= 0) {
-      router.push({ pathname: '/paywall', params: { reason: 'scans' } });
+      showScanLimit();
       return;
     }
     resetDraft({});
@@ -51,9 +53,9 @@ export default function Home() {
           onPress={() => router.push('/(tabs)/profile')}
           style={styles.scansBadge}
           accessibilityRole="button"
-          accessibilityLabel={subscription.isPremium ? 'Premium, unlimited scans' : `${remaining} of ${FREE_DAILY_SCANS} free scans left today`}
+          accessibilityLabel={unlimited ? 'Premium, unlimited scans' : `${remaining} of ${FREE_DAILY_SCANS} free scans left today`}
         >
-          {subscription.isPremium ? (
+          {unlimited ? (
             <>
               <Ionicons name="infinite" size={14} color={colors.gold} />
               <Text variant="caption" tone="gold" style={{ fontWeight: '700' }}>
@@ -81,14 +83,14 @@ export default function Home() {
           </Text>
           {remaining <= 0 && (
             <Text variant="caption" tone="gold" align="center" style={{ fontWeight: '600' }}>
-              Daily free scans used. They reset at midnight.
+              Today's scans are used. They reset at midnight.
             </Text>
           )}
         </LinearGradient>
       </Pressable>
 
       <Pressable
-        onPress={() => (remaining <= 0 ? router.push({ pathname: '/paywall', params: { reason: 'scans' } }) : router.push('/scan/upload'))}
+        onPress={() => (remaining <= 0 ? showScanLimit() : router.push('/scan/upload'))}
         style={({ pressed }) => [styles.uploadRow, pressed && { backgroundColor: colors.surfacePressed }]}
         accessibilityRole="button"
         accessibilityLabel="Check a record from saved photos"

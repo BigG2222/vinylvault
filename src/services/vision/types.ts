@@ -37,7 +37,7 @@ export interface VisionProvider {
 export class VisionError extends Error {
   constructor(
     message: string,
-    readonly kind: 'offline' | 'timeout' | 'bad_response' | 'refused' | 'server',
+    readonly kind: 'offline' | 'timeout' | 'bad_response' | 'refused' | 'server' | 'limit',
   ) {
     super(message);
     this.name = 'VisionError';

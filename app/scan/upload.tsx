@@ -6,6 +6,7 @@ import { ActivityIndicator, Alert, Pressable, StyleSheet, TextInput, View } from
 import { Button, IconButton, Row, Screen, Surface, Text } from '@/components/ui';
 import { pickRecordPhoto } from '@/services/ondevice/pickPhoto';
 import { scansRemaining, useApp, useScanSession } from '@/store';
+import { showScanLimit } from '@/utils/scanLimit';
 import { colors, radii, spacing } from '@/theme';
 
 type Slot = 'front' | 'back' | 'label' | 'runout';
@@ -41,7 +42,7 @@ export default function UploadScan() {
   const analyze = () => {
     if (!photos.front) return;
     if (scansRemaining({ usage, subscription }) <= 0) {
-      router.push({ pathname: '/paywall', params: { reason: 'scans' } });
+      showScanLimit();
       return;
     }
     const digits = barcode.replace(/\D/g, '');

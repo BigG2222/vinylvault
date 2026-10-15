@@ -15,7 +15,7 @@ npm run typecheck
 npx expo start --go --port 8083   # Expo Go (mock model, simulated store). CardVault uses 8081.
 ```
 
-On Windows, `scripts\start-phone.cmd` and `scripts\start-server.cmd` do the same with `npm.cmd`/`npx.cmd`. In Expo Go on Android, use **Enter URL manually** → `exp://192.168.4.73:8083`.
+On Windows, `scripts\start-phone.cmd` and `scripts\start-server.cmd` do the same with `npm.cmd`/`npx.cmd`. In Expo Go on Android, use **Enter URL manually** → `exp://192.168.4.31:8083`.
 
 OCR (ML Kit) and real purchases (RevenueCat) need a development or release build. `scripts\build-android.cmd` builds a release APK locally. It runs `expo prebuild`, applies `scripts/patch-android.js` (low-memory Gradle settings, arm64 only, lint vital skipped, CMake 3.31.6 for Windows long paths) and installs over USB if a phone is attached.
 
@@ -33,6 +33,15 @@ npm start                # http://0.0.0.0:8788, reads server/.env
 - `POST /v1/analyze` sends the photos and on-device hints to Claude (`claude-opus-5-5`, override with `VISION_MODEL`). It uses strict JSON-schema output (`server/src/schema.ts`), effort `high` and server-side refusal fallbacks (`fallbacks: "default"`). With a Discogs token, each candidate is looked up on Discogs, which adds a release link and ID.
 - `GET /v1/price` returns Discogs price suggestions by grade, plus the lowest current listing and the number for sale.
 - `GET /health` reports the model and whether a Discogs token is configured. The Profile tab shows this.
+
+## Google Play release
+
+- **Free launch:** `FREE_LAUNCH` in `src/config/index.ts` unlocks every feature for everyone, hides the paywall and keeps a daily cap of `FREE_DAILY_SCANS` (10). Set it to `false` to turn subscriptions back on.
+- **Server limits:** `server/src/limits.ts` caps scans per install (`X-Device-Id`), per network and in total each day, and `APP_KEY` can require the app's `X-App-Key`. See `server/.env.example`.
+- **Privacy policy:** served by the server at `/privacy` from `server/public/privacy.html`, and linked from Profile.
+- **HTTPS only:** `app.config.js` allows plain HTTP only while `EXPO_PUBLIC_VISION_PROXY_URL` is an `http://` address.
+- **Build for Play:** bump `android.versionCode` in `app.json`, then run `scripts\build-play.cmd`. It signs with the upload key in `Documents\VinylVault-signing` (kept out of git; back it up) and copies `VinylVault-for-Google-Play.aab` to the Desktop.
+- **Store listing:** `store-listing/` has the icon, feature graphic, listing text and Data safety answers.
 
 ## Discogs
 

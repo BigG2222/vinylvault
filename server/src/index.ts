@@ -12,15 +12,22 @@
  * charging for an app that shows Discogs data.
  */
 import Anthropic from '@anthropic-ai/sdk';
-import { writeFileSync } from 'node:fs';
+import { createHash, timingSafeEqual } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { discogsEnabled, findRelease, getPriceData, type ReleaseQuery } from './discogs.ts';
+import { clientIp, deviceId, LIMITS, take, usageSummary } from './limits.ts';
 import { SYSTEM_PROMPT, VISION_SCHEMA } from './schema.ts';
 
 const MODEL = process.env.VISION_MODEL ?? 'claude-opus-5-5';
 // CardVault's server uses 8787, so both can run side by side.
 const PORT = Number(process.env.PORT ?? 8788);
 const MAX_BODY_BYTES = 16 * 1024 * 1024;
+// When set, /v1/* requests must send the app's EXPO_PUBLIC_APP_KEY in X-App-Key. APP_KEY_SHA256 (the key's
+// SHA-256 in hex) lets render.yaml carry a fingerprint instead of the key itself, and takes precedence.
+const APP_KEY = process.env.APP_KEY ?? '';
+const APP_KEY_SHA256 = (process.env.APP_KEY_SHA256 ?? '').toLowerCase();
+const PRIVACY_HTML = new URL('../public/privacy.html', import.meta.url);
 
 // Reads ANTHROPIC_API_KEY (or another configured credential) from the environment.
 const client = new Anthropic();
@@ -183,6 +190,40 @@ async function readJson(req: IncomingMessage): Promise<AnalyzeBody> {
   return body;
 }
 
+function hasAppKey(req: IncomingMessage) {
+  if (!APP_KEY && !APP_KEY_SHA256) return true;
+  const sentKey = String(req.headers['x-app-key'] ?? '');
+  const sent = APP_KEY_SHA256 ? Buffer.from(createHash('sha256').update(sentKey).digest('hex')) : Buffer.from(sentKey);
+  const want = Buffer.from(APP_KEY_SHA256 || APP_KEY);
+  return sent.length === want.length && timingSafeEqual(sent, want);
+}
+
+const LIMIT_MESSAGE: Record<string, string> = {
+  device: 'Daily scan limit reached on this phone. It resets at midnight UTC.',
+  ip: 'Daily scan limit reached on this network. It resets at midnight UTC.',
+  total: 'VinylVault is very busy today. Please try again tomorrow.',
+};
+
+/** Applies the daily caps for one analysis; throws 429 when any is full. */
+function takeScan(req: IncomingMessage) {
+  const dev = deviceId(req);
+  const keys: [string, number][] = [
+    ['total:analyze', LIMITS.analyzeTotal],
+    [`ip:analyze:${clientIp(req)}`, LIMITS.analyzePerIp],
+  ];
+  if (dev) keys.push([`device:analyze:${dev}`, LIMITS.analyzePerDevice]);
+  const full = take(keys);
+  if (full) {
+    console.log(`  refused: ${full} daily limit`);
+    throw new HttpError(429, LIMIT_MESSAGE[full]);
+  }
+}
+
+function takePrice(req: IncomingMessage) {
+  const dev = deviceId(req) || clientIp(req);
+  if (take([[`device:price:${dev}`, LIMITS.pricePerDevice]])) throw new HttpError(429, 'Daily price lookup limit reached.');
+}
+
 function send(res: ServerResponse, status: number, payload: unknown) {
   res.writeHead(status, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(payload));
@@ -191,15 +232,27 @@ function send(res: ServerResponse, status: number, payload: unknown) {
 createServer(async (req, res) => {
   // Allow the Expo web preview (a different localhost port) to call the server during development.
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-App-Key, X-Device-Id');
   if (req.method === 'OPTIONS') return void res.writeHead(204).end();
 
   const url = new URL(req.url ?? '/', 'http://localhost');
   if (url.pathname !== '/health') console.log(`${new Date().toLocaleTimeString()} ${req.method} ${url.pathname}`);
   try {
-    if (req.method === 'GET' && url.pathname === '/health') return send(res, 200, { ok: true, model: MODEL, discogs: discogsEnabled() });
-    if (req.method === 'GET' && url.pathname === '/v1/price') return send(res, 200, await price(url));
-    if (req.method === 'POST' && url.pathname === '/v1/analyze') return send(res, 200, await analyze(await readJson(req)));
+    if (req.method === 'GET' && url.pathname === '/health') return send(res, 200, { ok: true, model: MODEL, discogs: discogsEnabled(), usage: usageSummary() });
+    if (req.method === 'GET' && url.pathname === '/privacy') {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      return void res.end(readFileSync(PRIVACY_HTML));
+    }
+    if (url.pathname.startsWith('/v1/') && !hasAppKey(req)) return send(res, 401, { error: 'Unauthorized' });
+    if (req.method === 'GET' && url.pathname === '/v1/price') {
+      takePrice(req);
+      return send(res, 200, await price(url));
+    }
+    if (req.method === 'POST' && url.pathname === '/v1/analyze') {
+      const body = await readJson(req);
+      takeScan(req);
+      return send(res, 200, await analyze(body));
+    }
     return send(res, 404, { error: 'Not found' });
   } catch (e) {
     console.error(`${new Date().toLocaleTimeString()} ${req.method} ${url.pathname} failed: ${e instanceof Error ? `${e.constructor.name}: ${e.message}` : String(e)}`);
@@ -221,4 +274,5 @@ createServer(async (req, res) => {
 }).listen(PORT, '0.0.0.0', () => {
   console.log(`VinylVault server on :${PORT} using ${MODEL}`);
   console.log(discogsEnabled() ? 'Discogs: token found, prices and release links are on.' : 'Discogs: no token, the app will show demo prices.');
+  console.log(`Limits per day: ${LIMITS.analyzePerDevice} scans per phone, ${LIMITS.analyzePerIp} per network, ${LIMITS.analyzeTotal} in total.${APP_KEY || APP_KEY_SHA256 ? ' App key required.' : ''}`);
 });

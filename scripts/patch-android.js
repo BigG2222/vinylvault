@@ -44,4 +44,35 @@ subprojects { p ->
   fs.writeFileSync(rootGradle, root);
 }
 
-console.log('Patched Android project: low-memory settings, lint skipped, CMake ' + CMAKE_VERSION + '.');
+// Sign release builds with the Google Play upload key when it is on this machine. The key and its
+// passwords live outside the project (Documents\VinylVault-signing) so they never reach git.
+const KEY_PROPS = process.env.VINYLVAULT_KEYSTORE_PROPS || path.join(require('os').homedir(), 'Documents', 'VinylVault-signing', 'keystore.properties');
+let signing = 'debug key (no upload key found)';
+if (fs.existsSync(KEY_PROPS)) {
+  gradle = fs.readFileSync(appGradle, 'utf8');
+  if (!gradle.includes('VINYLVAULT_UPLOAD_KEY')) {
+    const propsFile = KEY_PROPS.replace(/\\/g, '/');
+    gradle = gradle.replace(
+      /signingConfigs \{\s*\n/,
+      (m) => `${m}        // VINYLVAULT_UPLOAD_KEY
+        release {
+            def p = new Properties()
+            file('${propsFile}').withInputStream { p.load(it) }
+            storeFile file(p['storeFile'])
+            storePassword p['storePassword']
+            keyAlias p['keyAlias']
+            keyPassword p['keyPassword']
+        }
+`,
+    );
+    gradle = gradle.replace(
+      /(release \{\s*\n(?:\s*\/\/.*\n)*\s*)signingConfig signingConfigs\.debug/,
+      '$1signingConfig signingConfigs.release',
+    );
+    if (!gradle.includes('signingConfig signingConfigs.release')) throw new Error('Could not switch the release build to the upload key.');
+    fs.writeFileSync(appGradle, gradle);
+  }
+  signing = 'upload key';
+}
+
+console.log('Patched Android project: low-memory settings, lint skipped, CMake ' + CMAKE_VERSION + ', release signed with ' + signing + '.');

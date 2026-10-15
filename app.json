@@ -3,11 +3,12 @@
     "name": "VinylVault",
     "slug": "vinylvault",
     "scheme": "vinylvault",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "backgroundColor": "#070B14",
+    "icon": "./assets/icon.png",
     "ios": {
       "bundleIdentifier": "com.vinylvault.app",
       "supportsTablet": false,
@@ -17,10 +18,13 @@
     },
     "android": {
       "package": "com.vinylvault.app",
+      "versionCode": 1,
+      "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#070B14" },
       "permissions": ["android.permission.CAMERA"]
     },
     "plugins": [
       "expo-router",
+      ["expo-splash-screen", { "image": "./assets/splash-icon.png", "imageWidth": 160, "backgroundColor": "#070B14" }],
       "expo-status-bar",
       "expo-sharing",
       "expo-image",

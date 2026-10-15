@@ -9,6 +9,7 @@ import { authenticationConfidence } from '@/services/vision/verdict';
 import { allTags, scansRemaining, useApp, useScanSession } from '@/store';
 import { colors, radii, spacing } from '@/theme';
 import { formatDate, formatLine, originLine, pressingLine } from '@/utils/format';
+import { showScanLimit } from '@/utils/scanLimit';
 
 type Side = 'front' | 'back' | 'label' | 'runout';
 
@@ -50,7 +51,7 @@ export default function RecordDetail() {
 
   const recheck = () => {
     if (scansRemaining({ usage, subscription }) <= 0) {
-      router.push({ pathname: '/paywall', params: { reason: 'scans' } });
+      showScanLimit();
       return;
     }
     resetDraft({ rescanRecordId: record.id });

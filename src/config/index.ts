@@ -2,7 +2,15 @@
  * Product constants. Pricing shown here is the *fallback* display copy; live
  * prices always come from the store via RevenueCat when it is configured.
  */
-export const FREE_DAILY_SCANS = 12;
+/**
+ * First Google Play release is free: every premium feature is unlocked for
+ * everyone, the paywall is hidden, and scans stay capped per day to bound
+ * model costs. The server enforces its own caps too. Set to false to turn
+ * subscriptions back on (needs RevenueCat keys and Play Console products).
+ */
+export const FREE_LAUNCH = true;
+
+export const FREE_DAILY_SCANS = 10;
 export const FREE_COLLECTION_LIMIT = 75;
 export const RECENT_SCANS_KEPT = 30;
 
@@ -23,13 +31,15 @@ export const AUDIO_CAVEAT = "Grades are estimated from photos only. They can't d
 /** Required by the Discogs API terms next to any data that came from Discogs. */
 export const DISCOGS_ATTRIBUTION = 'Data provided by Discogs.';
 
-export const SUPPORT_EMAIL = 'support@vinylvault.app';
+export const SUPPORT_EMAIL = 'lanansipsip@gmail.com';
 
 export const env = {
   visionProvider: (process.env.EXPO_PUBLIC_VISION_PROVIDER ?? 'mock') as 'mock' | 'proxy',
   visionProxyUrl: process.env.EXPO_PUBLIC_VISION_PROXY_URL ?? '',
   revenueCatIos: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY ?? '',
   revenueCatAndroid: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY ?? '',
+  /** Must match APP_KEY on the server when the server sets one. */
+  appKey: process.env.EXPO_PUBLIC_APP_KEY ?? '',
 };
 
 export const DEFAULT_TAGS = ['Favorites', 'First Pressings', 'For Sale', 'Needs Cleaning', 'Needs Review'] as const;

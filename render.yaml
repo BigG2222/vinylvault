@@ -4,7 +4,7 @@ services:
     name: vinylvault-vision
     runtime: node
     rootDir: server
-    plan: free # switch to starter (always on) before the public launch
+    plan: starter # always on, so testers never wait for a sleeping server
     buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /health

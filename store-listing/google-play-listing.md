@@ -43,7 +43,7 @@ GOOD TO KNOW
 ## Contact details
 
 - Email: lanansipsip@gmail.com
-- Privacy policy: https://{{SERVER_ADDRESS}}/privacy
+- Privacy policy: https://vinylvault-vision.onrender.com/privacy
 
 ## Graphics (in this folder)
 

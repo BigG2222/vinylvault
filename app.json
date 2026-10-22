@@ -107,6 +107,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "582ef688-267e-4bfd-a4cd-fd9ff83edb69"
+      }
+    },
+    "owner": "bigglen888"
   }
 }

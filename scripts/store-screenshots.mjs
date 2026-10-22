@@ -1,4 +1,4 @@
-// Takes store phone screenshots (Google Play 1080 × 1920, or App Store 1320 × 2868 with IOS=1) of the web build with headless Chrome.
+// Takes store phone screenshots (Google Play 1080 × 1920, or App Store 1206 × 2622 with IOS=1) of the web build with headless Chrome.
 // Usage: start `npx expo start --web --port 8082`, then `node scripts/store-screenshots.mjs`.
 // Talks to Chrome over the DevTools protocol directly, so it needs no extra packages (Node 22+).
 import { spawn } from 'node:child_process';
@@ -8,10 +8,10 @@ import { join } from 'node:path';
 
 const CHROME = process.env.CHROME ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const BASE = process.env.APP_URL ?? 'http://localhost:8082';
-// IOS=1 makes App Store 6.9-inch shots (1320 × 2868) into store-listing/app-store/.
+// IOS=1 makes App Store iPhone 6.3-inch shots (1206 × 2622, the size App Store Connect asks for in 2026) into store-listing/app-store/.
 const IOS = process.env.IOS === '1';
 const OUT = new URL(IOS ? '../store-listing/app-store/' : '../store-listing/', import.meta.url);
-const VIEW = IOS ? { width: 440, height: 956 } : { width: 360, height: 640 };
+const VIEW = IOS ? { width: 402, height: 874 } : { width: 360, height: 640 };
 const PORT = 9333;
 const SHOTS = [
   ['screenshot-1-home.png', '/'],

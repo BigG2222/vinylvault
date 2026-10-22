@@ -1,4 +1,4 @@
-// Takes Google Play phone screenshots (1080 × 1920) of the web build with headless Chrome.
+// Takes store phone screenshots (Google Play 1080 × 1920, or App Store 1320 × 2868 with IOS=1) of the web build with headless Chrome.
 // Usage: start `npx expo start --web --port 8082`, then `node scripts/store-screenshots.mjs`.
 // Talks to Chrome over the DevTools protocol directly, so it needs no extra packages (Node 22+).
 import { spawn } from 'node:child_process';
@@ -8,7 +8,10 @@ import { join } from 'node:path';
 
 const CHROME = process.env.CHROME ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const BASE = process.env.APP_URL ?? 'http://localhost:8082';
-const OUT = new URL('../store-listing/', import.meta.url);
+// IOS=1 makes App Store 6.9-inch shots (1320 × 2868) into store-listing/app-store/.
+const IOS = process.env.IOS === '1';
+const OUT = new URL(IOS ? '../store-listing/app-store/' : '../store-listing/', import.meta.url);
+const VIEW = IOS ? { width: 440, height: 956 } : { width: 360, height: 640 };
 const PORT = 9333;
 const SHOTS = [
   ['screenshot-1-home.png', '/'],
@@ -48,7 +51,7 @@ try {
   const clickText = (label) =>
     evaluate(`(() => { const b = [...document.querySelectorAll('[role=button]')].find(e => e.innerText.trim() === ${JSON.stringify(label)}); if (b) b.click(); return !!b; })()`);
 
-  await send('Emulation.setDeviceMetricsOverride', { width: 360, height: 640, deviceScaleFactor: 3, mobile: true });
+  await send('Emulation.setDeviceMetricsOverride', { ...VIEW, deviceScaleFactor: 3, mobile: true });
   await send('Page.navigate', { url: BASE });
   // First run: finish onboarding so the sample collection is loaded. The first web bundle can take a while.
   for (let i = 0; i < 60; i++) {

@@ -28,6 +28,7 @@ const MAX_BODY_BYTES = 16 * 1024 * 1024;
 const APP_KEY = process.env.APP_KEY ?? '';
 const APP_KEY_SHA256 = (process.env.APP_KEY_SHA256 ?? '').toLowerCase();
 const PRIVACY_HTML = new URL('../public/privacy.html', import.meta.url);
+const SUPPORT_HTML = new URL('../public/support.html', import.meta.url);
 
 // Reads ANTHROPIC_API_KEY (or another configured credential) from the environment.
 const client = new Anthropic();
@@ -242,6 +243,10 @@ createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/privacy') {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       return void res.end(readFileSync(PRIVACY_HTML));
+    }
+    if (req.method === 'GET' && url.pathname === '/support') {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      return void res.end(readFileSync(SUPPORT_HTML));
     }
     if (url.pathname.startsWith('/v1/') && !hasAppKey(req)) return send(res, 401, { error: 'Unauthorized' });
     if (req.method === 'GET' && url.pathname === '/v1/price') {

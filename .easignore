@@ -1,0 +1,12 @@
+# What the EAS cloud build leaves out. Like .gitignore, except the app's own .env IS sent
+# (it only holds EXPO_PUBLIC_* values that ship inside the app anyway).
+# The server's .env holds real secrets and must never be uploaded.
+node_modules/
+.expo/
+dist/
+ios/
+android/
+*.log
+expo-env.d.ts
+server/
+store-listing/

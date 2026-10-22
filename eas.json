@@ -5,12 +5,16 @@
   },
   "build": {
     "production": {
-      "ios": { "resourceClass": "default" }
+      "ios": {
+        "resourceClass": "default"
+      }
     }
   },
   "submit": {
     "production": {
-      "ios": {}
+      "ios": {
+        "ascAppId": "6825843315"
+      }
     }
   }
 }

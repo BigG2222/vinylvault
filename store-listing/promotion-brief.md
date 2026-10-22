@@ -164,3 +164,59 @@ The screenshots show built-in sample records (labelled "Sample"). Don't present 
 - [ ] Discogs mentioned only as a data source, with "not affiliated" where space allows
 - [ ] The community's self-promotion rules are followed, and you're open about being the developer's account
 - [ ] Spelling is UK English, the tone is friendly and not salesy
+
+---
+
+## 16. Store listing optimisation (ASO): current listings and rules
+
+You may suggest improvements to the store listings, but the **developer decides and applies them**. Always give the full replacement text ready to paste, with its character count.
+
+### Current Google Play listing (live in the closed test)
+
+| Field | Limit | Current text |
+|---|---|---|
+| App name | 30 | VinylVault: Record Scanner |
+| Short description | 80 | Photograph a vinyl record to identify the pressing, grade it and see its value. |
+| Full description | 4000 | The text in section 3, in this order: intro; "WHAT YOU GET FROM EACH SCAN"; "WORKS FOR OLDER RECORDS TOO"; "YOUR COLLECTION"; "FREE WHILE IT'S NEW"; "GOOD TO KNOW" (estimates, not appraisals; photos can't hear; internet needed; Discogs data, not affiliated) |
+| Category | – | Music & audio |
+
+Google Play rules:
+- No "free", "best", "#1", "top", prices or promotions in the **app name** or icon.
+- No keyword stuffing or lists of keywords.
+- No other apps' or brands' names used to attract searches.
+- No unverifiable claims, and no fake testimonials.
+
+### Current Apple App Store listing (in review)
+
+| Field | Limit | Current text |
+|---|---|---|
+| Name | 30 | VinylVault: Record Scanner |
+| Subtitle | 30 | Identify, grade & value vinyl |
+| Promotional text | 170 | Photograph a record to see which pressing it is, how it grades and what it's worth. Free while it's new. |
+| Keywords | 100 (commas, no spaces) | vinyl,records,scanner,LP,album,collection,pressing,grading,value,crate,catalog,identify,music |
+| Description | 4000 | Same as the Google Play full description |
+| Category | – | Music (primary), Utilities (secondary) |
+
+Apple rules:
+- The keyword field must not contain trademarks, other app names or competitor names (no "Discogs", "Goldmine" or band names).
+- Don't repeat words already in the name or subtitle; the keyword field is wasted on them.
+- No prices or "free" in the name or subtitle.
+- **Promotional text** can be changed at any time without a new review, so it's the best place for "free while it's new" or launch news.
+- The name, subtitle, keywords and description can only change with a new app version.
+
+### How to propose a change
+
+1. Say which store and which field.
+2. Give the new text with its character count, and confirm it's within the limit.
+3. Explain the reason in one line (e.g. "adds the search term 'first pressing'").
+4. Check it against section 4 (no accuracy guarantees, no trademarks) and the store rules above.
+
+### Data you can work from
+
+The developer may paste numbers from Google Play Console (store listing visitors, installs, search terms) or App Store Connect (impressions, product page views, conversion rate). Only base recommendations on data you've actually been given. Never make up figures.
+
+## 17. Working with the support side
+
+- Support email: lanansipsip@gmail.com. Support page: https://vinylvault-vision.onrender.com/support
+- If someone reports a wrong result, a bug or a privacy question in comments, don't troubleshoot in public. Reply kindly and point them to the support email or the in-app flag (report) button.
+- Never promise features, fixes or dates. Say "thanks, I'll pass that on to the developer".

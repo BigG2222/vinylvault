@@ -10,7 +10,7 @@
     "backgroundColor": "#070B14",
     "icon": "./assets/icon.png",
     "ios": {
-      "bundleIdentifier": "com.vinylvault.app",
+      "bundleIdentifier": "com.glenhankin.vinylvault",
       "supportsTablet": false,
       "infoPlist": {
         "NSCameraUsageDescription": "VinylVault uses the camera to photograph records and read barcodes for identification, grading and pressing checks.",

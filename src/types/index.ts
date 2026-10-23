@@ -152,6 +152,10 @@ export interface PriceEstimate {
   numForSale?: number;
   /** Where the full sales history can be seen. */
   salesHistoryUrl?: string;
+  /** The Discogs release page; "Data provided by Discogs." links here. */
+  releaseUrl?: string;
+  /** Discogs numbers removed after DISCOGS_MAX_AGE_MS (API terms); fetch again to show a value. */
+  expired?: boolean;
 }
 
 export interface ScanImages {

@@ -4,6 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { DEFAULT_TAGS, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, FREE_LAUNCH, RECENT_SCANS_KEPT } from '@/config';
 import type { Scenario } from '@/data/generate';
 import { buildSampleData } from '@/data/samples';
+import { expirePrice, isPriceExpired } from '@/services/pricing';
 import { setDeviceId } from '@/services/serverHeaders';
 import type { SubscriptionState } from '@/services/subscriptions';
 import type { CollectionRecord, RecordIdentity, ScanResult, ScanSource, WrongResultReport } from '@/types';
@@ -39,6 +40,8 @@ interface AppState {
   updateRecord(id: string, patch: Partial<CollectionRecord>): void;
   removeRecord(id: string): void;
   setSubscription(s: SubscriptionState): void;
+  /** Strips Discogs prices past the 6-hour limit of the Discogs API terms from saved records and scans. */
+  expireOldPrices(): void;
   setPref<K extends keyof Prefs>(key: K, value: Prefs[K]): void;
   addReport(r: Omit<WrongResultReport, 'id' | 'createdAt'>): void;
   addTag(tag: string): void;
@@ -125,6 +128,17 @@ export const useApp = create<AppState>()(
         set((s) => ({ collection: s.collection.filter((c) => c.id !== id) }));
       },
 
+      expireOldPrices() {
+        const now = Date.now();
+        const stale = (p: { price: CollectionRecord['price'] }) => isPriceExpired(p.price, now) && !p.price.expired;
+        const s = get();
+        if (!s.collection.some(stale) && !s.scans.some(stale)) return;
+        set({
+          collection: s.collection.map((c) => (stale(c) ? { ...c, price: expirePrice(c.price) } : c)),
+          scans: s.scans.map((x) => (stale(x) ? { ...x, price: expirePrice(x.price) } : x)),
+        });
+      },
+
       setSubscription(subscription) {
         if (FREE_LAUNCH) return;
         set({ subscription });
@@ -160,6 +174,7 @@ export const useApp = create<AppState>()(
       },
       onRehydrateStorage: () => () => {
         setDeviceId(useApp.getState().deviceId);
+        useApp.getState().expireOldPrices();
         useApp.setState({ hydrated: true });
       },
     },
@@ -178,13 +193,15 @@ export function scansRemaining(s: Pick<AppState, 'usage' | 'subscription'>): num
  * Collection total as a range. Records priced in a different currency from
  * the majority are left out of the sum (and counted) rather than mixed in.
  */
-export function collectionTotals(records: CollectionRecord[]) {
+export function collectionTotals(all: CollectionRecord[]) {
+  // Expired Discogs prices have no numbers to add; they are counted so the screen can offer a refresh.
+  const records = all.filter((r) => !isPriceExpired(r.price));
   const counts = new Map<string, number>();
   for (const r of records) counts.set(r.price.currency, (counts.get(r.price.currency) ?? 0) + 1);
   const currency = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'USD';
   const same = records.filter((r) => r.price.currency === currency);
   const sum = same.reduce((t, c) => ({ low: t.low + c.price.low, avg: t.avg + c.price.avg, high: t.high + c.price.high }), { low: 0, avg: 0, high: 0 });
-  return { ...sum, currency, excluded: records.length - same.length };
+  return { ...sum, currency, excluded: records.length - same.length, expired: all.length - records.length };
 }
 
 export function allTags(customTags: string[]): string[] {

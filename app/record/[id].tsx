@@ -2,6 +2,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Linking, Pressable, StyleSheet, TextInput, useWindowDimensions, View } from 'react-native';
 import { CheckList } from '@/components/record/CheckList';
+import { FreshPriceGate } from '@/components/record/FreshPriceGate';
 import { ConditionPanel, GradePriceTable, ObservedPanel, SalesPanel } from '@/components/record/Panels';
 import { RecordArt } from '@/components/record/RecordArt';
 import { Button, Chip, ConfidenceMeter, EmptyState, IconButton, PremiumLock, PriceRange, ReviewNote, Row, Screen, SectionHeader, Surface, Text, VerdictBadge } from '@/components/ui';
@@ -107,15 +108,17 @@ export default function RecordDetail() {
         ) : null}
       </View>
 
-      <Surface style={{ gap: spacing.lg }}>
-        <PriceRange price={record.price} />
-        <SalesPanel price={record.price} />
-      </Surface>
-      <PremiumLock locked={!isPremium} title="Value at every grade" body="What this pressing is worth from Mint down to Poor.">
-        <Surface>
-          <GradePriceTable price={record.price} media={record.condition.media.grade} />
+      <FreshPriceGate price={record.price} identity={i} condition={record.condition} save={(price) => updateRecord(record.id, { price })}>
+        <Surface style={{ gap: spacing.lg }}>
+          <PriceRange price={record.price} />
+          <SalesPanel price={record.price} />
         </Surface>
-      </PremiumLock>
+        <PremiumLock locked={!isPremium} title="Value at every grade" body="What this pressing is worth from Mint down to Poor.">
+          <Surface>
+            <GradePriceTable price={record.price} media={record.condition.media.grade} />
+          </Surface>
+        </PremiumLock>
+      </FreshPriceGate>
 
       <VerdictBadge verdict={record.verdict} />
       <ConfidenceMeter value={authenticationConfidence(record.checks)} label="Check confidence" />

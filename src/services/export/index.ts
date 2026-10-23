@@ -1,7 +1,8 @@
 import { File, Paths } from 'expo-file-system';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import { DISCOGS_ATTRIBUTION } from '@/config';
+import { DISCOGS_ATTRIBUTION, DISCOGS_NOTICE } from '@/config';
+import { isPriceExpired } from '@/services/pricing';
 import { collectionTotals } from '@/store';
 import { verdictMeta } from '@/theme';
 import type { CollectionRecord } from '@/types';
@@ -19,10 +20,12 @@ export function collectionToCsv(records: CollectionRecord[]): string {
   ];
   const rows = records.map((r) => {
     const i = r.identity;
+    // Expired Discogs prices can't be shown (Discogs API terms), so their value columns stay empty.
+    const exp = isPriceExpired(r.price);
     return [
       i.artist, i.title, i.label, i.catalogNumber, i.country, i.year, i.originalYear, i.format, i.discs, i.genre, i.variant, i.barcode,
-      verdictMeta[r.verdict].label, r.condition.media.grade, r.condition.sleeve.grade, r.price.low, r.price.avg, r.price.high, r.price.currency,
-      r.price.source === 'discogs' ? 'Discogs' : 'Demo estimate', formatDate(r.price.asOf, true), i.discogsUrl, r.tags.join('; '), r.notes,
+      verdictMeta[r.verdict].label, r.condition.media.grade, r.condition.sleeve.grade, exp ? '' : r.price.low, exp ? '' : r.price.avg, exp ? '' : r.price.high, r.price.currency,
+      exp ? 'Discogs (expired: open the record in the app to refresh)' : r.price.source === 'discogs' ? 'Discogs' : 'Demo estimate', exp ? '' : formatDate(r.price.asOf, true), i.discogsUrl, r.tags.join('; '), r.notes,
     ];
   });
   return [header, ...rows].map((row) => row.map(csvCell).join(',')).join('\n');
@@ -47,7 +50,7 @@ export async function exportPdf(records: CollectionRecord[]) {
         <td><strong>${esc(i.artist)}</strong> – ${esc(i.title)}<br/><span class="m">${esc(i.label)} ${esc(i.catalogNumber)} · ${esc(i.country)} ${i.year}${i.variant ? ` · ${esc(i.variant)}` : ''}</span></td>
         <td style="color:${verdictMeta[r.verdict].color}">${verdictMeta[r.verdict].label}</td>
         <td>${r.condition.media.grade} / ${r.condition.sleeve.grade}</td>
-        <td class="r">${money(r.price.low, false, r.price.currency)} – ${money(r.price.high, false, r.price.currency)}<br/><span class="m">avg ${money(r.price.avg, false, r.price.currency)}</span></td>
+        <td class="r">${isPriceExpired(r.price) ? '<span class="m">Open in the app to refresh the Discogs price</span>' : `${money(r.price.low, false, r.price.currency)} – ${money(r.price.high, false, r.price.currency)}<br/><span class="m">avg ${money(r.price.avg, false, r.price.currency)}</span>`}</td>
       </tr>`;
     })
     .join('');
@@ -61,9 +64,9 @@ export async function exportPdf(records: CollectionRecord[]) {
   </style></head><body>
     <h1>VinylVault Collection</h1>
     <div class="m">${records.length} records · Exported ${formatDate(new Date().toISOString(), true)}</div>
-    <p><strong>Estimated value:</strong> ${money(totals.low, false, cur)} – ${money(totals.high, false, cur)} (avg ${money(totals.avg, false, cur)})${totals.excluded ? ` · ${totals.excluded} record(s) in other currencies not included` : ''}</p>
+    <p><strong>Estimated value:</strong> ${money(totals.low, false, cur)} – ${money(totals.high, false, cur)} (avg ${money(totals.avg, false, cur)})${totals.excluded ? ` · ${totals.excluded} record(s) in other currencies not included` : ''}${totals.expired ? ` · ${totals.expired} record(s) awaiting a Discogs price refresh not included` : ''}</p>
     <table><thead><tr><th>Record</th><th>Pressing</th><th>Media / sleeve</th><th class="r">Value range</th></tr></thead><tbody>${rows}</tbody></table>
-    <p class="m">Grades and values are estimates from photos and are not appraisals. Photos cannot reveal how a record sounds.${usesDiscogs ? ` ${DISCOGS_ATTRIBUTION}` : ''}</p>
+    <p class="m">Grades and values are estimates from photos and are not appraisals. Photos cannot reveal how a record sounds.${usesDiscogs ? ` ${DISCOGS_ATTRIBUTION} ${DISCOGS_NOTICE}` : ''}</p>
   </body></html>`;
   const { uri } = await Print.printToFileAsync({ html });
   await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Export collection', UTI: 'com.adobe.pdf' });

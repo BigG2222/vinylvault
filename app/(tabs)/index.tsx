@@ -117,6 +117,11 @@ export default function Home() {
             <Text variant="caption" tone="secondary">
               Average {money(totals.avg, false, totals.currency)} · {collection.length} records
             </Text>
+            {totals.expired ? (
+              <Text variant="caption" tone="muted">
+                {totals.expired} not included: open {totals.expired === 1 ? 'it' : 'them'} to refresh Discogs prices
+              </Text>
+            ) : null}
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
         </Row>

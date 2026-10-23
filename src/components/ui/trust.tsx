@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { DISCOGS_ATTRIBUTION, RESULT_DISCLAIMER } from '@/config';
 import { colors, radii, spacing, verdictMeta } from '@/theme';
 import type { PressingVerdict, PriceEstimate } from '@/types';
@@ -104,11 +104,49 @@ export function PriceRange({ price, compact }: { price: PriceEstimate; compact?:
   );
 }
 
+/**
+ * Stands in for the price panels while an expired Discogs price is being fetched again.
+ * Discogs API terms don't allow showing Discogs prices more than 6 hours old.
+ */
+export function ExpiredPrice({ state, onRetry }: { state: 'idle' | 'loading' | 'failed'; onRetry: () => void }) {
+  return (
+    <View style={{ gap: spacing.sm, alignItems: 'flex-start' }}>
+      {state === 'failed' ? (
+        <>
+          <Text variant="caption" tone="secondary">
+            Discogs prices are only shown for up to 6 hours, and we couldn't fetch today's prices. Check your connection and try again.
+          </Text>
+          <Pressable onPress={onRetry} accessibilityRole="button">
+            <Text variant="caption" tone="gold" style={{ fontWeight: '700' }}>
+              Refresh prices
+            </Text>
+          </Pressable>
+        </>
+      ) : (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+          <ActivityIndicator size="small" color={colors.gold} />
+          <Text variant="caption" tone="secondary">
+            Updating Discogs prices…
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
 /** Says where the numbers came from: Discogs (with the required attribution) or demo values. */
 export function PriceSourceLine({ price }: { price: PriceEstimate }) {
   if (price.source === 'discogs') {
+    // The Discogs API terms require this notice next to Discogs data, linked to the page it came from.
+    const url = price.releaseUrl ?? price.salesHistoryUrl;
     return (
-      <Text variant="caption" tone="secondary" style={{ fontWeight: '600' }}>
+      <Text
+        variant="caption"
+        tone="secondary"
+        style={{ fontWeight: '600', textDecorationLine: url ? 'underline' : 'none' }}
+        onPress={url ? () => Linking.openURL(url) : undefined}
+        accessibilityRole={url ? 'link' : undefined}
+      >
         {DISCOGS_ATTRIBUTION}
       </Text>
     );

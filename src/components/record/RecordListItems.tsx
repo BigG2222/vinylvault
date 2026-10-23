@@ -1,21 +1,25 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Row, Text, VerdictBadge } from '@/components/ui';
+import { isPriceExpired } from '@/services/pricing';
 import { colors, radii, spacing } from '@/theme';
-import type { CollectionRecord, ScanResult } from '@/types';
+import type { CollectionRecord, PriceEstimate, ScanResult } from '@/types';
 import { compactMoney, moneyRange, pressingLine, relativeTime } from '@/utils/format';
 import { RecordArt } from './RecordArt';
+
+// Expired Discogs prices (Discogs API terms) show a dash until the record is opened and refreshed.
+const avgText = (p: PriceEstimate) => (isPriceExpired(p) ? '—' : compactMoney(p.avg, p.currency));
+const rangeText = (p: PriceEstimate) => (isPriceExpired(p) ? 'Open to refresh price' : moneyRange(p.low, p.high, p.currency));
 
 export function RecordTile({ record, width, onPress }: { record: CollectionRecord; width: number; onPress: () => void }) {
   const artW = width - spacing.md * 2;
   const i = record.identity;
-  const c = record.price.currency;
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [styles.tile, { width }, pressed && { backgroundColor: colors.surfacePressed }]}
       accessibilityRole="button"
-      accessibilityLabel={`${i.artist}, ${i.title}, ${i.year} ${i.country}, ${moneyRange(record.price.low, record.price.high, c)}`}
+      accessibilityLabel={`${i.artist}, ${i.title}, ${i.year} ${i.country}, ${rangeText(record.price)}`}
     >
       <RecordArt identity={i} uri={record.images.front || undefined} width={artW} />
       <View style={{ gap: 3, marginTop: spacing.sm }}>
@@ -31,7 +35,7 @@ export function RecordTile({ record, width, onPress }: { record: CollectionRecor
         <Row style={{ justifyContent: 'space-between', marginTop: 2 }}>
           <VerdictBadge verdict={record.verdict} size="sm" />
           <Text variant="caption" tone="gold" style={{ fontWeight: '700', fontVariant: ['tabular-nums'] }}>
-            {compactMoney(record.price.avg, c)}
+            {avgText(record.price)}
           </Text>
         </Row>
       </View>
@@ -42,7 +46,6 @@ export function RecordTile({ record, width, onPress }: { record: CollectionRecor
 
 export function RecordRow({ record, onPress }: { record: CollectionRecord; onPress: () => void }) {
   const i = record.identity;
-  const c = record.price.currency;
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && { backgroundColor: colors.surfacePressed }]} accessibilityRole="button">
       <RecordArt identity={i} uri={record.images.front || undefined} width={56} />
@@ -58,10 +61,10 @@ export function RecordRow({ record, onPress }: { record: CollectionRecord; onPre
       </View>
       <View style={{ alignItems: 'flex-end', gap: 2 }}>
         <Text variant="bodyStrong" tone="gold" style={{ fontVariant: ['tabular-nums'] }}>
-          {compactMoney(record.price.avg, c)}
+          {avgText(record.price)}
         </Text>
         <Text variant="caption" tone="muted" style={{ fontVariant: ['tabular-nums'] }}>
-          {moneyRange(record.price.low, record.price.high, c)}
+          {rangeText(record.price)}
         </Text>
       </View>
     </Pressable>
@@ -84,7 +87,7 @@ export function RecentScanRow({ scan, onPress }: { scan: ScanResult; onPress: ()
       <View style={{ alignItems: 'flex-end', gap: 4 }}>
         <VerdictBadge verdict={scan.verdict} size="sm" />
         <Text variant="caption" tone="muted" style={{ fontVariant: ['tabular-nums'] }}>
-          {moneyRange(scan.price.low, scan.price.high, scan.price.currency)}
+          {rangeText(scan.price)}
         </Text>
       </View>
       <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />

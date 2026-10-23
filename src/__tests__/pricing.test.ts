@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { priceFromServer } from '../services/pricing';
+import { DISCOGS_MAX_AGE_MS, expirePrice, isPriceExpired, priceFromServer } from '../services/pricing';
 import type { ConditionEstimate, Grade } from '../types';
 import { completeGradePrices, rangeForCondition, sleeveFactor } from '../utils/grading';
 
@@ -66,5 +66,31 @@ describe('priceFromServer', () => {
   it('returns null when Discogs data is unavailable so the caller can fall back to demo values', () => {
     assert.equal(priceFromServer({ available: false, reason: 'no_token' }, cond('NM', 'NM')), null);
     assert.equal(priceFromServer({ available: true, byGrade: {} }, cond('NM', 'NM')), null);
+  });
+});
+
+describe('Discogs 6-hour limit', () => {
+  const fresh = priceFromServer({ available: true, releaseId: 65304, currency: 'USD', byGrade: suggestions, asOf: '2026-10-23T12:00:00Z' }, cond('VG+', 'VG+'))!;
+  const at = Date.parse('2026-10-23T12:00:00Z');
+
+  it('links the attribution to the Discogs release page', () => {
+    assert.equal(fresh.releaseUrl, 'https://www.discogs.com/release/65304');
+  });
+
+  it('expires Discogs prices once they are more than 6 hours old', () => {
+    assert.equal(isPriceExpired(fresh, at + DISCOGS_MAX_AGE_MS), false);
+    assert.equal(isPriceExpired(fresh, at + DISCOGS_MAX_AGE_MS + 1), true);
+  });
+
+  it('never expires demo prices', () => {
+    assert.equal(isPriceExpired({ ...fresh, source: 'demo' }, at + 10 * DISCOGS_MAX_AGE_MS), false);
+  });
+
+  it('strips every Discogs number from an expired price', () => {
+    const e = expirePrice(fresh);
+    assert.equal(isPriceExpired(e, at), true);
+    assert.deepEqual([e.low, e.avg, e.high, e.lowestListing, e.numForSale], [0, 0, 0, undefined, undefined]);
+    assert.deepEqual(e.byGrade, {});
+    assert.equal(e.releaseUrl, fresh.releaseUrl);
   });
 });

@@ -28,8 +28,12 @@ export const RESULT_DISCLAIMER = "Results are based on visual analysis. If somet
 /** Visual grading can't hear the record. Shown with every condition estimate. */
 export const AUDIO_CAVEAT = "Grades are estimated from photos only. They can't detect surface noise, pops, skips or groove wear, so play the record before you buy or sell on this grade.";
 
-/** Required by the Discogs API terms next to any data that came from Discogs. */
+/** Required by the Discogs API terms next to any data that came from Discogs, linked to its Discogs page. */
 export const DISCOGS_ATTRIBUTION = 'Data provided by Discogs.';
+
+/** Required by the Discogs API terms, shown prominently in the app (Profile) and on the support and privacy pages. */
+export const DISCOGS_NOTICE =
+  "This application uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC.";
 
 export const SUPPORT_EMAIL = 'lanansipsip@gmail.com';
 

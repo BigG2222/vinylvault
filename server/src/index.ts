@@ -174,7 +174,6 @@ async function price(url: URL) {
     releaseId,
     url: releaseUrl ?? `https://www.discogs.com/release/${releaseId}`,
     ...data,
-    asOf: new Date().toISOString(),
   };
 }
 

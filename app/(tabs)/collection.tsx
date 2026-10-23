@@ -91,6 +91,7 @@ export default function Collection() {
           <Text variant="caption" tone="secondary">
             avg {money(totals.avg, false, totals.currency)}
             {totals.excluded ? ` · ${totals.excluded} in other currencies not included` : ''}
+            {totals.expired ? ` · ${totals.expired} awaiting a Discogs price refresh` : ''}
           </Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>

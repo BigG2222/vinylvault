@@ -36,6 +36,25 @@ export interface ServerPrice {
   asOf?: string;
 }
 
+/**
+ * Discogs API terms: Discogs data may not be shown if it is more than 6 hours older than on
+ * discogs.com, nor kept longer than needed. Expired prices are stripped (expirePrice) and
+ * fetched again when a record is opened.
+ */
+export const DISCOGS_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+
+export function isPriceExpired(price: PriceEstimate, now = Date.now()): boolean {
+  if (price.source !== 'discogs') return false;
+  if (price.expired) return true;
+  const at = Date.parse(price.asOf);
+  return !Number.isFinite(at) || now - at > DISCOGS_MAX_AGE_MS;
+}
+
+/** Drops the Discogs numbers from a price, keeping only what's needed to fetch it again. */
+export function expirePrice(price: PriceEstimate): PriceEstimate {
+  return { ...price, low: 0, avg: 0, high: 0, byGrade: {}, recentSales: [], lowestListing: undefined, numForSale: undefined, basis: 'Discogs price expired', expired: true };
+}
+
 /** Turns the server's Discogs numbers into a range for this copy's condition. Pure, so it is unit-tested. */
 export function priceFromServer(p: ServerPrice, condition: ConditionEstimate): PriceEstimate | null {
   if (!p.available) return null;
@@ -53,6 +72,7 @@ export function priceFromServer(p: ServerPrice, condition: ConditionEstimate): P
     numForSale: p.numForSale ?? undefined,
     // The API has no individual sales, but the release's public sales-history page does.
     salesHistoryUrl: p.releaseId ? `https://www.discogs.com/sell/history/${p.releaseId}` : p.url,
+    releaseUrl: p.url ?? (p.releaseId ? `https://www.discogs.com/release/${p.releaseId}` : undefined),
   };
   const range = rangeForCondition(byGrade, media, sleeve);
   if (range) return { ...range, ...common, basis: `Discogs price suggestions · media ${media}, sleeve ${sleeve}` };
@@ -106,7 +126,7 @@ export async function getPrice(identity: RecordIdentity, condition: ConditionEst
     return price;
   } catch (e) {
     const cached = cache.get(key);
-    if (cached) return cached;
+    if (cached && !isPriceExpired(cached)) return cached;
     throw e;
   }
 }

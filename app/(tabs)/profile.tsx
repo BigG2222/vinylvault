@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { Button, Chip, Row, Screen, SectionHeader, Surface, Text } from '@/components/ui';
-import { env, FALLBACK_PRICING, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, FREE_LAUNCH, SUPPORT_EMAIL } from '@/config';
+import { DISCOGS_NOTICE, env, FALLBACK_PRICING, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, FREE_LAUNCH, SUPPORT_EMAIL } from '@/config';
 import type { Scenario } from '@/data/generate';
 import { isOcrAvailable } from '@/services/ondevice/ocr';
 import { isMockStore, manageSubscription } from '@/services/subscriptions';
@@ -193,6 +193,16 @@ export default function Profile() {
           </Surface>
         </>
       )}
+
+      <SectionHeader title="About" />
+      <Surface style={{ gap: spacing.sm }}>
+        <Text variant="caption" tone="secondary">
+          Record details and prices come from Discogs. Discogs prices are refreshed when they are more than 6 hours old.
+        </Text>
+        <Text variant="caption" tone="secondary">
+          {DISCOGS_NOTICE}
+        </Text>
+      </Surface>
 
       <Text variant="caption" tone="muted" align="center">
         VinylVault {Constants.expoConfig?.version} · Grades and values are estimates, not appraisals.

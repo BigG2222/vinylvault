@@ -33,7 +33,7 @@ GOOD TO KNOW
 • Results are estimates from photos, not appraisals. Every result shows how confident it is, and you can report anything that looks wrong.
 • Photos can't hear: play a record before you buy or sell it on a grade.
 • An internet connection is needed for identification and prices.
-• Price data provided by Discogs. VinylVault is not affiliated with Discogs.
+• Data provided by Discogs. This application uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC.
 
 ## Category and tags
 

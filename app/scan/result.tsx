@@ -4,6 +4,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { CheckList } from '@/components/record/CheckList';
+import { FreshPriceGate } from '@/components/record/FreshPriceGate';
 import { ConditionPanel, GradePriceTable, MatchList, ObservedPanel, SalesPanel } from '@/components/record/Panels';
 import { RecordArt } from '@/components/record/RecordArt';
 import { Button, ConfidenceMeter, EmptyState, PremiumLock, PriceRange, ReviewNote, Row, Screen, SectionHeader, Surface, Text, VerdictBadge } from '@/components/ui';
@@ -203,20 +204,22 @@ export default function Result() {
       </Surface>
 
       <SectionHeader title="Market value" />
-      <Surface style={{ gap: spacing.lg }}>
-        <PriceRange price={scan.price} />
-        <View>
-          <Text variant="label" tone="muted" style={{ marginBottom: spacing.xs }}>
-            Recent sales
-          </Text>
-          <SalesPanel price={scan.price} />
-        </View>
-      </Surface>
-      <PremiumLock locked={!isPremium} title="Value at every grade" body="See what this pressing is worth from Mint down to Poor.">
-        <Surface>
-          <GradePriceTable price={scan.price} media={scan.condition.media.grade} />
+      <FreshPriceGate price={scan.price} identity={identity} condition={scan.condition} save={(price) => updateScan({ ...scan, price })}>
+        <Surface style={{ gap: spacing.lg }}>
+          <PriceRange price={scan.price} />
+          <View>
+            <Text variant="label" tone="muted" style={{ marginBottom: spacing.xs }}>
+              Recent sales
+            </Text>
+            <SalesPanel price={scan.price} />
+          </View>
         </Surface>
-      </PremiumLock>
+        <PremiumLock locked={!isPremium} title="Value at every grade" body="See what this pressing is worth from Mint down to Poor.">
+          <Surface>
+            <GradePriceTable price={scan.price} media={scan.condition.media.grade} />
+          </Surface>
+        </PremiumLock>
+      </FreshPriceGate>
 
       <View style={{ gap: spacing.md }}>
         {savedRecord ? (

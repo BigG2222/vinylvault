@@ -2,7 +2,7 @@ import '@/utils/crashGuard';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Platform, ScrollView, Text, UIManager, View } from 'react-native';
+import { AppState, Platform, ScrollView, Text, UIManager, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { configureSubscriptions, getSubscriptionState } from '@/services/subscriptions';
 import { setMockScenario } from '@/services/vision/providers/mock';
@@ -25,6 +25,17 @@ export default function RootLayout() {
   }, [setSubscription]);
 
   useEffect(() => setMockScenario(demoScenario), [demoScenario]);
+
+  // Discogs API terms: no Discogs prices older than 6 hours. Check on return to the app and every 10 minutes.
+  useEffect(() => {
+    const expire = () => useApp.getState().expireOldPrices();
+    const sub = AppState.addEventListener('change', (s) => s === 'active' && expire());
+    const timer = setInterval(expire, 10 * 60 * 1000);
+    return () => {
+      sub.remove();
+      clearInterval(timer);
+    };
+  }, []);
 
   if (!hydrated) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
 

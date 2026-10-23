@@ -16,7 +16,7 @@
         "NSCameraUsageDescription": "VinylVault uses the camera to photograph records and read barcodes for identification, grading and pressing checks.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "1",
+      "buildNumber": "2",
       "privacyManifests": {
         "NSPrivacyAccessedAPITypes": [
           {

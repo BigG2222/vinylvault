@@ -4,8 +4,10 @@ function fmt(currency: string) {
   let f = formatters.get(currency);
   if (!f) {
     f = {
-      whole: new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }),
-      cents: new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2 }),
+      // Set both digit limits: Hermes on iOS throws a RangeError when maximumFractionDigits is
+      // below the currency's default minimum (2 for USD) instead of lowering the minimum.
+      whole: new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0, maximumFractionDigits: 0 }),
+      cents: new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     };
     formatters.set(currency, f);
   }
@@ -21,7 +23,8 @@ export function money(value: number, precise = false, currency = 'USD'): string 
 }
 
 export function compactMoney(value: number, currency = 'USD'): string {
-  const symbol = fmt(currency).whole.formatToParts(0).find((p) => p.type === 'currency')?.value ?? '$';
+  // Not formatToParts: Hermes on iOS doesn't implement it for NumberFormat.
+  const symbol = fmt(currency).whole.format(0).replace(/[\d\s., ]/g, '') || '$';
   if (value >= 1_000_000) return `${symbol}${(value / 1_000_000).toFixed(value >= 10_000_000 ? 0 : 1)}M`;
   if (value >= 10_000) return `${symbol}${Math.round(value / 1000)}K`;
   if (value >= 1_000) return `${symbol}${(value / 1000).toFixed(1)}K`;

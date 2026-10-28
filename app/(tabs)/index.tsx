@@ -109,13 +109,21 @@ export default function Home() {
         <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <View style={{ gap: 4, flex: 1 }}>
             <Text variant="label" tone="muted">
-              Collection value
+              {totals.isExample ? 'Example value (sample records)' : 'Collection value'}
             </Text>
-            <Text variant="numberLarge" tone="gold">
-              {compactMoney(totals.low, totals.currency)} – {compactMoney(totals.high, totals.currency)}
-            </Text>
+            {totals.priced ? (
+              <Text variant="numberLarge" tone="gold">
+                {compactMoney(totals.low, totals.currency)} – {compactMoney(totals.high, totals.currency)}
+              </Text>
+            ) : (
+              <Text variant="bodyStrong" tone="secondary">
+                No prices yet
+              </Text>
+            )}
             <Text variant="caption" tone="secondary">
-              Average {money(totals.avg, false, totals.currency)} · {collection.length} records
+              {totals.priced ? `Average ${money(totals.avg, false, totals.currency)} · ` : ''}
+              {collection.length} records{totals.isExample ? ' · not market data' : ''}
+              {totals.unpriced ? ` · ${totals.unpriced} with no price` : ''}
             </Text>
             {totals.expired ? (
               <Text variant="caption" tone="muted">

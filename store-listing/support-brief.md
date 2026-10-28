@@ -59,7 +59,7 @@ Then the **Result** screen shows: the top match with its confidence, the pressin
 **Grades:** the vinyl and the sleeve are graded separately, as M, NM, VG+, VG, G+, G, F or P. **Photos can't hear**: surface noise, pops and skips can't be detected, so play the record before buying or selling on a grade.
 
 **Value:** a low / average / high range for that copy's condition.
-- **Where the figures come from:** Discogs price data where available ("Data provided by Discogs"; VinylVault isn't affiliated with Discogs). If a result says "Demo values", the prices are illustrative only.
+- **Where the figures come from:** Discogs price suggestions where available ("Data provided by Discogs"; VinylVault isn't affiliated with Discogs). They're not individual sales or appraisals. When Discogs has no price, the app shows "No price available" and a link to the record on Discogs; it never makes up a price. Only the sample records show "Example" values, which are illustrative.
 - **Sales history:** the Discogs API doesn't give individual past sales, so the app links to the Discogs sales history page instead.
 
 **Wrong pressing?** On the result screen, scroll to **Not the right pressing?** and tap the right one. The checks and value update straight away. **Re-run all checks for this pressing** sends the photos again for a more thorough check.
@@ -101,7 +101,7 @@ Then the **Result** screen shows: the top match with its confidence, the pressin
 - Grades are estimated from photos, so lighting hides or exaggerates scuffs. Retake the photos in good light. Remember it can't hear the record.
 
 **"The price looks wrong"**
-- The value is a range for that copy's condition, based on Discogs data where available. Prices vary a lot between pressings, so make sure the right pressing is selected. "Demo values" are illustrative only.
+- The value is a range for that copy's condition, based on Discogs price suggestions where available. Prices vary a lot between pressings, so make sure the right pressing is selected. "Example" values on sample records are illustrative only.
 
 **"What are these Sample records?"**
 - Examples the app adds so the screens aren't empty at first. They don't count towards anything. To remove them: **Profile → Remove sample records**.

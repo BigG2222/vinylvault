@@ -192,9 +192,9 @@ Google Play rules:
 |---|---|---|
 | Name | 30 | VinylVault: Record Scanner |
 | Subtitle | 30 | Identify, grade & value vinyl |
-| Promotional text | 170 | Photograph a record to see which pressing it is, how it grades and what it's worth. Free while it's new. |
+| Promotional text | 170 | Photograph a record to see which pressing it is, how it grades and its Discogs price suggestions. Free while it's new. (Updated 28 Oct 2026: paste into App Store Connect.) |
 | Keywords | 100 (commas, no spaces) | vinyl,records,scanner,LP,album,collection,pressing,grading,value,crate,catalog,identify,music |
-| Description | 4000 | Same as the Google Play full description |
+| Description | 4000 | Same as the Google Play full description (updated 28 Oct 2026 in `google-play-listing.md`: paste the new text with the next version) |
 | Category | – | Music (primary), Utilities (secondary) |
 
 Apple rules:

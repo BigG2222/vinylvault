@@ -3,7 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
-import { DISCOGS_ATTRIBUTION, RESULT_DISCLAIMER } from '@/config';
+import { DISCOGS_ATTRIBUTION, RESULT_DISCLAIMER, VERDICT_CAVEAT } from '@/config';
 import { colors, radii, spacing, verdictMeta } from '@/theme';
 import type { PressingVerdict, PriceEstimate } from '@/types';
 import { compactMoney, confidenceLabel, formatDate, money, percent } from '@/utils/format';
@@ -33,10 +33,13 @@ export function VerdictBadge({ verdict, size = 'md' }: { verdict: PressingVerdic
       </View>
       <View style={{ flex: 1 }}>
         <Text variant="label" tone="muted" style={{ fontSize: 10 }}>
-          Pressing & authenticity
+          Pressing check
         </Text>
         <Text variant={lg ? 'title' : 'heading'} color={m.color}>
           {m.label}
+        </Text>
+        <Text variant="caption" tone="muted" style={{ marginTop: 2 }}>
+          {VERDICT_CAVEAT}
         </Text>
       </View>
     </View>
@@ -71,6 +74,34 @@ export function ConfidenceMeter({ value, label = 'Match confidence' }: { value: 
       <View style={styles.track}>
         <View style={[styles.fill, { width: `${Math.round(value * 100)}%`, backgroundColor: color }]} />
       </View>
+    </View>
+  );
+}
+
+/**
+ * When there is no Discogs price range: says so plainly (with the lowest current listing if Discogs
+ * has one) and links to the record on Discogs. Never shows an invented number.
+ */
+export function NoPrice({ price }: { price: PriceEstimate }) {
+  const url = price.releaseUrl ?? price.salesHistoryUrl;
+  const listing = price.source === 'discogs' && typeof price.lowestListing === 'number' && price.lowestListing > 0;
+  return (
+    <View style={{ gap: spacing.sm }}>
+      <Text variant="bodyStrong">No price available</Text>
+      <Text variant="caption" tone="secondary">
+        {listing
+          ? `Discogs has no price suggestions for this pressing. Lowest current listing on Discogs: ${money(price.lowestListing!, false, price.currency)}${typeof price.numForSale === 'number' ? ` (${price.numForSale} for sale)` : ''}.`
+          : "We couldn't get a Discogs price for this pressing. Check it on Discogs instead."}
+      </Text>
+      {url ? (
+        <Pressable onPress={() => Linking.openURL(url)} accessibilityRole="link" style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Ionicons name="open-outline" size={14} color={colors.gold} />
+          <Text variant="caption" tone="gold" style={{ fontWeight: '600' }}>
+            See it on Discogs
+          </Text>
+        </Pressable>
+      ) : null}
+      {listing ? <PriceSourceLine price={price} /> : null}
     </View>
   );
 }
@@ -134,7 +165,7 @@ export function ExpiredPrice({ state, onRetry }: { state: 'idle' | 'loading' | '
   );
 }
 
-/** Says where the numbers came from: Discogs (with the required attribution) or demo values. */
+/** Says where the numbers came from: Discogs (with the required attribution) or example values. */
 export function PriceSourceLine({ price }: { price: PriceEstimate }) {
   if (price.source === 'discogs') {
     // The Discogs API terms require this notice next to Discogs data, linked to the page it came from.
@@ -152,8 +183,8 @@ export function PriceSourceLine({ price }: { price: PriceEstimate }) {
     );
   }
   return (
-    <Text variant="caption" color={colors.review}>
-      Demo values for illustration, not market data.
+    <Text variant="caption" color={colors.review} style={{ fontWeight: '600' }}>
+      Example values for illustration, not market data.
     </Text>
   );
 }

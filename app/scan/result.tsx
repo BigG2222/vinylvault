@@ -5,9 +5,10 @@ import { useState } from 'react';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { CheckList } from '@/components/record/CheckList';
 import { FreshPriceGate } from '@/components/record/FreshPriceGate';
-import { ConditionPanel, GradePriceTable, MatchList, ObservedPanel, SalesPanel } from '@/components/record/Panels';
+import { MarketValue } from '@/components/record/MarketValue';
+import { ConditionPanel, MatchList, ObservedPanel } from '@/components/record/Panels';
 import { RecordArt } from '@/components/record/RecordArt';
-import { Button, ConfidenceMeter, EmptyState, PremiumLock, PriceRange, ReviewNote, Row, Screen, SectionHeader, Surface, Text, VerdictBadge } from '@/components/ui';
+import { Button, ConfidenceMeter, EmptyState, ReviewNote, Row, Screen, SectionHeader, Surface, Text, VerdictBadge } from '@/components/ui';
 import { getPrice } from '@/services/pricing';
 import { mergeOnDeviceEvidence } from '@/services/vision/merge';
 import { authenticationConfidence, computeVerdict } from '@/services/vision/verdict';
@@ -205,20 +206,7 @@ export default function Result() {
 
       <SectionHeader title="Market value" />
       <FreshPriceGate price={scan.price} identity={identity} condition={scan.condition} save={(price) => updateScan({ ...scan, price })}>
-        <Surface style={{ gap: spacing.lg }}>
-          <PriceRange price={scan.price} />
-          <View>
-            <Text variant="label" tone="muted" style={{ marginBottom: spacing.xs }}>
-              Recent sales
-            </Text>
-            <SalesPanel price={scan.price} />
-          </View>
-        </Surface>
-        <PremiumLock locked={!isPremium} title="Value at every grade" body="See what this pressing is worth from Mint down to Poor.">
-          <Surface>
-            <GradePriceTable price={scan.price} media={scan.condition.media.grade} />
-          </Surface>
-        </PremiumLock>
+        <MarketValue price={scan.price} isSample={scan.isSample} isPremium={isPremium} media={scan.condition.media.grade} salesTitle="Recent sales" />
       </FreshPriceGate>
 
       <View style={{ gap: spacing.md }}>
@@ -242,7 +230,8 @@ export default function Result() {
         </Row>
       </View>
 
-      <Footer scan={scan} />
+      {/* Model name and timings are developer information. */}
+      {__DEV__ && <Footer scan={scan} />}
     </Screen>
   );
 }

@@ -100,7 +100,7 @@ export function GradePriceTable({ price, media }: { price: PriceEstimate; media:
         );
       })}
       <Text variant="caption" tone="muted">
-        {price.source === 'discogs' ? 'Discogs suggested prices by media grade.' : 'Demo values by grade.'} Your copy is highlighted.
+        {price.source === 'discogs' ? 'Discogs suggested prices by media grade.' : 'Example values by grade, not market data.'} Your copy is highlighted.
       </Text>
     </View>
   );
@@ -117,7 +117,7 @@ export function SalesPanel({ price }: { price: PriceEstimate }) {
         <SalesList sales={price.recentSales.slice(0, 5)} currency={price.currency} />
         {price.source === 'demo' && (
           <Text variant="caption" color={colors.review} style={{ marginTop: spacing.xs }}>
-            Demo sales for illustration.
+            Example sales for illustration, not real sales.
           </Text>
         )}
       </View>

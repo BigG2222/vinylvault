@@ -7,7 +7,7 @@ export type RefreshState = 'idle' | 'loading' | 'failed';
 /**
  * Keeps a Discogs price within the 6-hour limit of the Discogs API terms: when the
  * saved price has expired, fetches it again on its own and hands it to `save`.
- * A demo fallback (server unreachable) never replaces a Discogs price.
+ * "No price available" (server unreachable, no Discogs data) never replaces a Discogs price.
  */
 export function useFreshPrice(price: PriceEstimate, identity: RecordIdentity, condition: ConditionEstimate, save: (p: PriceEstimate) => void) {
   const expired = isPriceExpired(price);

@@ -48,7 +48,7 @@ npm start                # http://0.0.0.0:8788, reads server/.env
 - **Auth:** a personal access token from discogs.com/settings/developers. It stays on the server and is never put in the app.
 - **Rate limit:** 60 authenticated requests a minute. The client queues requests about 1.1 s apart, retries a 429 once after `Retry-After`, and caches responses for at most 6 hours.
 - **Price suggestions:** these need the token owner's Discogs **seller settings** filled in, and they come back in that account's selling currency. Without seller settings, only marketplace stats (the lowest listing) are available.
-- **No individual sales:** the API doesn't return them. For Discogs prices the app says so plainly and links to the release's public sales-history page. It never invents sales. Demo prices include demo sales, clearly labelled as demo.
+- **No individual sales:** the API doesn't return them. For Discogs prices the app says so plainly and links to the release's public sales-history page. It never invents sales. Example prices (development builds and the seeded sample records only) include example sales, clearly labelled "Example". Release builds show "No price available" with a Discogs link instead of ever inventing a price.
 - **Attribution:** "Data provided by Discogs." is shown next to Discogs data (`DISCOGS_ATTRIBUTION`).
 - **Before launch:** read the Discogs API Terms of Use, especially the restricted-data, commercial-use and caching sections, before charging for an app that shows Discogs data.
 
@@ -69,7 +69,7 @@ app/                       expo-router screens
 src/
   services/ondevice/       Image stats, framing (cover/label/runout guides), live framing, OCR + label text hints, precheck
   services/vision/         Provider interface, mock + proxy providers, parse, merge, verdict, pipeline
-  services/pricing/        Price provider (server/Discogs with demo fallback) + cache
+  services/pricing/        Price provider (server/Discogs; "No price available" when Discogs has none) + cache
   services/subscriptions/  RevenueCat wrapper with a simulated store fallback (from CardVault)
   utils/grading.ts         Goldmine scale, Discogs grade names, value factors, range for media + sleeve
   components/ui            CardVault design system: Text, Button, Surface, Chip, VerdictBadge, ConfidenceMeter, ReviewNote, PriceRange…

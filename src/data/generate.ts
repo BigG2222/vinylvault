@@ -69,7 +69,10 @@ export function buildCondition(seed: number): ConditionEstimate {
   return { media: grade(pickGrade(r), MEDIA_ISSUES, MEDIA_SUMMARY, r), sleeve: grade(pickGrade(r), SLEEVE_ISSUES, SLEEVE_SUMMARY, r) };
 }
 
-/** Demo price data shaped like the real thing: suggested prices by grade plus a range for this copy's condition. */
+/**
+ * Example (invented) price data shaped like the real thing. Only for the labelled sample records and
+ * development builds: release builds never show these for a scanned record (see services/pricing).
+ */
 export function buildPrice(baseNM: number, condition: ConditionEstimate, seed: number, now = new Date()): PriceEstimate {
   const r = rng(seed);
   const jitter = 0.9 + r() * 0.2;
@@ -80,13 +83,13 @@ export function buildPrice(baseNM: number, condition: ConditionEstimate, seed: n
   const recentSales: SaleRecord[] = Array.from({ length: 5 }, (_, i) => {
     const d = new Date(now);
     d.setDate(d.getDate() - Math.round(i * 9 + r() * 6 + 2));
-    return { price: round(range.low + (range.high - range.low) * (0.1 + r() * 0.8)), date: d.toISOString(), source: 'Demo', condition: label };
+    return { price: round(range.low + (range.high - range.low) * (0.1 + r() * 0.8)), date: d.toISOString(), source: 'Example', condition: label };
   });
   return {
     ...range,
     currency: 'USD',
     asOf: now.toISOString(),
-    basis: `Media ${condition.media.grade}, sleeve ${condition.sleeve.grade}`,
+    basis: `Example values · media ${condition.media.grade}, sleeve ${condition.sleeve.grade}`,
     source: 'demo',
     byGrade,
     recentSales,

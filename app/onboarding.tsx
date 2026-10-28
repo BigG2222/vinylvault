@@ -103,7 +103,7 @@ function WhatPage() {
         <Feature icon="search" title="Pressings you can verify" body="Top matches with confidence scores, by label, catalog number, country and year. Pick the right one if we're unsure." />
         <Feature icon="disc" title="Goldmine grades" body="Separate grades for the vinyl and the sleeve, with what we saw: scuffs, scratches, ring wear, seam splits, writing." />
         <Feature icon="shield-checkmark" title="Eight pressing checks" body="Label print, runout etching, catalog numbers, barcode vs era and known bootleg signs, each explained in plain language." />
-        <Feature icon="trending-up" title="Honest value ranges" body="Low, average and high for your copy's condition, with dates and sources. A range, not a single number." />
+        <Feature icon="trending-up" title="Honest value ranges" body="Price suggestions from Discogs for your copy's condition, as a low to high range with the date. If Discogs has no price, we say so." />
       </View>
     </View>
   );
@@ -165,7 +165,7 @@ function PricingPage() {
       <Row gap={spacing.sm} style={styles.highlight}>
         <Ionicons name="information-circle-outline" size={18} color={colors.gold} />
         <Text variant="caption" color={colors.cream} style={{ flex: 1 }}>
-          Every result shows confidence scores. If something looks wrong, report it and we'll review it.
+          Every result shows confidence scores. If something looks wrong, report it: reports help us improve results.
         </Text>
       </Row>
     </View>

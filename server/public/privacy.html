@@ -19,10 +19,10 @@
 <p>VinylVault is a mobile app that identifies, grades and values vinyl records from photos. This policy explains what data the app uses, why, and who it is shared with. VinylVault has no accounts, no advertising and no analytics or tracking.</p>
 
 <h2>Photos of your records</h2>
-<p>When you scan a record, the photos you take or choose (front cover, back cover, label, runout and barcode) are sent over an encrypted connection to the VinylVault server, which passes them to Anthropic's Claude AI service to identify the record and estimate its condition. The VinylVault server does not save your photos: they are used for that one analysis and then discarded. Anthropic processes them as our service provider under its commercial terms, which do not allow it to use them to train its models. Please photograph records, not people or personal documents.</p>
+<p>When you scan a record, the photos you take or choose (front cover, back cover, label, runout and barcode) are sent over an encrypted connection to the VinylVault server, which passes them to Anthropic's Claude AI service to identify the record and estimate its condition. The VinylVault server does not save your photos: they are used for that one analysis and then discarded. Anthropic processes them as our service provider under its commercial terms, which do not allow it to use them to train its models. Anthropic automatically deletes API inputs and outputs within 30 days of receiving them, unless it needs to keep them longer to enforce its usage policy or is required to by law (see <a href="https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data">Anthropic's data retention page</a>). The app asks your permission before the first photo is sent, and you can withdraw it at any time (see &ldquo;Your choices&rdquo;). Please photograph records, not people or personal documents.</p>
 
 <h2>Record details and prices</h2>
-<p>To show prices and links, the server looks up the identified record (artist, title, label, catalogue number, country, year, barcode) on <a href="https://www.discogs.com">Discogs</a>. Nothing about you is sent to Discogs.</p>
+<p>To show price suggestions and links, the server looks up the identified record (artist, title, label, catalogue number, country, year, barcode) on <a href="https://www.discogs.com">Discogs</a>. Nothing about you is sent to Discogs. When Discogs has no price for a record, the app shows &ldquo;No price available&rdquo; with a link to Discogs; it never makes up a price.</p>
 
 <p>This application uses Discogs&#8217; API but is not affiliated with, sponsored or endorsed by Discogs. &#8216;Discogs&#8217; is a trademark of Zink Media, LLC.</p>
 
@@ -42,12 +42,13 @@
 <p>VinylVault is not directed at children under 13 and does not knowingly collect personal information from them.</p>
 
 <h2>Your choices</h2>
-<p>You can stop all data sharing by not scanning, and delete everything stored by the app by uninstalling it. Because we hold no account or stored personal data about you, there is nothing on our side to delete; if you have questions, contact us below.</p>
+<p><strong>Withdrawing permission for AI analysis:</strong> in the app, go to Profile &rarr; Privacy and turn off &ldquo;Send photos to AI (Claude by Anthropic)&rdquo;. While it is off, no photos are sent; the app asks again before your next scan is analysed. You can also stop all data sharing by not scanning.</p>
+<p><strong>Deleting your data:</strong> uninstalling the app deletes everything it stores on your phone. We hold no account or photos on our side. The only thing we keep is a report you send with &ldquo;This looks wrong&rdquo;, which stays in our server&rsquo;s logs and is deleted automatically within 30 days; email us (below) to have yours deleted sooner. Daily usage counts are cleared every day.</p>
 
 <h2>Changes</h2>
 <p>If this policy changes, the new version will be posted here with a new date.</p>
 
 <h2>Contact</h2>
-<p>Questions about privacy: <a href="mailto:lanansipsip@gmail.com">lanansipsip@gmail.com</a></p>
+<p>Questions about privacy: <a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a></p>
 </body>
 </html>

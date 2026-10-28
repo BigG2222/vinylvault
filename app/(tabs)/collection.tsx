@@ -83,14 +83,23 @@ export default function Collection() {
       <View style={styles.totals}>
         <View style={{ flex: 1 }}>
           <Text variant="label" tone="muted">
-            {filtered ? 'Filtered value' : 'Total value'}
+            {totals.isExample ? 'Example value (sample records)' : filtered ? 'Filtered value' : 'Total value'}
           </Text>
-          <Text variant="number" tone="gold">
-            {compactMoney(totals.low, totals.currency)} – {compactMoney(totals.high, totals.currency)}
-          </Text>
+          {totals.priced ? (
+            <Text variant="number" tone="gold">
+              {compactMoney(totals.low, totals.currency)} – {compactMoney(totals.high, totals.currency)}
+            </Text>
+          ) : (
+            <Text variant="bodyStrong" tone="secondary">
+              No prices yet
+            </Text>
+          )}
           <Text variant="caption" tone="secondary">
-            avg {money(totals.avg, false, totals.currency)}
+            {totals.priced ? `avg ${money(totals.avg, false, totals.currency)}` : 'Totals use Discogs price suggestions only'}
+            {totals.isExample ? ' · not market data' : ''}
             {totals.excluded ? ` · ${totals.excluded} in other currencies not included` : ''}
+            {totals.unpriced ? ` · ${totals.unpriced} with no price not included` : ''}
+            {totals.examplesLeftOut ? ` · ${totals.examplesLeftOut} sample(s) not included` : ''}
             {totals.expired ? ` · ${totals.expired} awaiting a Discogs price refresh` : ''}
           </Text>
         </View>

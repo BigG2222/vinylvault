@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router, useLocalSearchParams } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, IconButton, Row, Text } from '@/components/ui';
-import { FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS } from '@/config';
+import { FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, FREE_LAUNCH, legalUrl } from '@/config';
 import { getPlans, isMockStore, purchase, restore, type Plan, type PlanId } from '@/services/subscriptions';
 import { useApp } from '@/store';
 import { colors, radii, spacing } from '@/theme';
@@ -13,7 +13,7 @@ import { colors, radii, spacing } from '@/theme';
 const REASONS: Record<string, { title: string; body: string }> = {
   scans: { title: "You've used today's free scans", body: `Free includes ${FREE_DAILY_SCANS} scans a day and resets at midnight. Premium removes the limit.` },
   collection: { title: 'Your collection is full', body: `Free collections hold ${FREE_COLLECTION_LIMIT} records. Premium has no limit, and nothing you've saved is ever locked.` },
-  export: { title: 'Export your collection', body: 'CSV for spreadsheets, PDF for insurance and sales.' },
+  export: { title: 'Export your collection', body: 'CSV for spreadsheets, PDF for your records.' },
   filters: { title: 'Organize like a pro', body: 'Folders, tags and advanced filters by decade, value and condition.' },
 };
 
@@ -30,7 +30,17 @@ const ROWS: { label: string; free: string | boolean; premium: string | boolean }
   { label: 'Priority support', free: false, premium: true },
 ];
 
+/**
+ * While FREE_LAUNCH is on nothing is sold, so the paywall can't be opened at all, not even by a
+ * deep link (vinylvault://paywall): it sends the person home. Subscriptions also need RevenueCat
+ * keys, store products and Discogs' written permission before FREE_LAUNCH is turned off.
+ */
 export default function Paywall() {
+  if (FREE_LAUNCH) return <Redirect href="/" />;
+  return <PaywallScreen />;
+}
+
+function PaywallScreen() {
   const { reason } = useLocalSearchParams<{ reason?: string }>();
   const setSubscription = useApp((s) => s.setSubscription);
   const [plans, setPlans] = useState<Plan[] | null>(null);
@@ -177,12 +187,12 @@ export default function Paywall() {
               Restore purchases
             </Text>
           </Pressable>
-          <Pressable onPress={() => Linking.openURL('https://vinylvault.app/terms')} hitSlop={8}>
+          <Pressable onPress={() => Linking.openURL(legalUrl('terms'))} hitSlop={8}>
             <Text variant="caption" tone="secondary">
-              Terms
+              Terms of Use
             </Text>
           </Pressable>
-          <Pressable onPress={() => Linking.openURL('https://vinylvault.app/privacy')} hitSlop={8}>
+          <Pressable onPress={() => Linking.openURL(legalUrl('privacy'))} hitSlop={8}>
             <Text variant="caption" tone="secondary">
               Privacy
             </Text>

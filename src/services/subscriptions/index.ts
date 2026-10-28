@@ -26,14 +26,20 @@ export interface SubscriptionState {
 
 const apiKey = Platform.select({ ios: env.revenueCatIos, android: env.revenueCatAndroid, default: '' });
 
-/** Without a RevenueCat key the app runs against an in-memory store so paywall UI is testable. */
-export const isMockStore = !apiKey;
+/** True when a RevenueCat key is set, so real store purchases are possible. */
+const hasStore = Boolean(apiKey);
+
+/**
+ * Development builds without a RevenueCat key use an in-memory store so the paywall UI can be tested.
+ * Release builds never do: without a key, nothing can be bought and nothing grants Premium.
+ */
+export const isMockStore = !hasStore && __DEV__;
 
 let configured = false;
 let mockPremium: SubscriptionState | null = null;
 
 export function configureSubscriptions(onChange: (s: SubscriptionState) => void) {
-  if (configured || isMockStore) return;
+  if (configured || !hasStore) return;
   Purchases.configure({ apiKey: apiKey! });
   configured = true;
   Purchases.addCustomerInfoUpdateListener((info) => onChange(toState(info)));
@@ -53,7 +59,7 @@ function toState(info: CustomerInfo): SubscriptionState {
 const FREE_STATE: SubscriptionState = { isPremium: false, willRenew: false, expiresAt: null, activePlan: null, managementUrl: null };
 
 export async function getSubscriptionState(): Promise<SubscriptionState> {
-  if (isMockStore) return mockPremium ?? FREE_STATE;
+  if (!hasStore) return (isMockStore && mockPremium) || FREE_STATE;
   return toState(await Purchases.getCustomerInfo());
 }
 
@@ -66,7 +72,7 @@ function fallbackPlans(): Plan[] {
 
 /** Live store prices (localized) when available, otherwise the configured list prices. */
 export async function getPlans(): Promise<Plan[]> {
-  if (isMockStore) return fallbackPlans();
+  if (!hasStore) return fallbackPlans();
   try {
     const offerings = await Purchases.getOfferings();
     const cur = offerings.current;
@@ -99,7 +105,8 @@ export async function getPlans(): Promise<Plan[]> {
 export type PurchaseOutcome = { ok: true; state: SubscriptionState } | { ok: false; cancelled: boolean; message?: string };
 
 export async function purchase(plan: Plan): Promise<PurchaseOutcome> {
-  if (isMockStore) {
+  if (!hasStore) {
+    if (!isMockStore) return { ok: false, cancelled: false, message: 'Purchases are not available yet.' };
     mockPremium = { isPremium: true, willRenew: true, expiresAt: null, activePlan: plan.id, managementUrl: null };
     return { ok: true, state: mockPremium };
   }
@@ -113,13 +120,13 @@ export async function purchase(plan: Plan): Promise<PurchaseOutcome> {
 }
 
 export async function restore(): Promise<SubscriptionState> {
-  if (isMockStore) return mockPremium ?? FREE_STATE;
+  if (!hasStore) return (isMockStore && mockPremium) || FREE_STATE;
   return toState(await Purchases.restorePurchases());
 }
 
 /** Opens the platform's native subscription management (the "easy cancel" path). */
 export async function manageSubscription(managementUrl: string | null) {
-  if (isMockStore) {
+  if (!hasStore) {
     mockPremium = null;
     return;
   }

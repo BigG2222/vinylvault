@@ -3,9 +3,10 @@ import { useState } from 'react';
 import { Alert, Linking, Pressable, StyleSheet, TextInput, useWindowDimensions, View } from 'react-native';
 import { CheckList } from '@/components/record/CheckList';
 import { FreshPriceGate } from '@/components/record/FreshPriceGate';
-import { ConditionPanel, GradePriceTable, ObservedPanel, SalesPanel } from '@/components/record/Panels';
+import { MarketValue } from '@/components/record/MarketValue';
+import { ConditionPanel, ObservedPanel } from '@/components/record/Panels';
 import { RecordArt } from '@/components/record/RecordArt';
-import { Button, Chip, ConfidenceMeter, EmptyState, IconButton, PremiumLock, PriceRange, ReviewNote, Row, Screen, SectionHeader, Surface, Text, VerdictBadge } from '@/components/ui';
+import { Button, Chip, ConfidenceMeter, EmptyState, IconButton, ReviewNote, Row, Screen, SectionHeader, Surface, Text, VerdictBadge } from '@/components/ui';
 import { authenticationConfidence } from '@/services/vision/verdict';
 import { allTags, scansRemaining, useApp, useScanSession } from '@/store';
 import { colors, radii, spacing } from '@/theme';
@@ -109,15 +110,7 @@ export default function RecordDetail() {
       </View>
 
       <FreshPriceGate price={record.price} identity={i} condition={record.condition} save={(price) => updateRecord(record.id, { price })}>
-        <Surface style={{ gap: spacing.lg }}>
-          <PriceRange price={record.price} />
-          <SalesPanel price={record.price} />
-        </Surface>
-        <PremiumLock locked={!isPremium} title="Value at every grade" body="What this pressing is worth from Mint down to Poor.">
-          <Surface>
-            <GradePriceTable price={record.price} media={record.condition.media.grade} />
-          </Surface>
-        </PremiumLock>
+        <MarketValue price={record.price} isSample={record.isSample} isPremium={isPremium} media={record.condition.media.grade} />
       </FreshPriceGate>
 
       <VerdictBadge verdict={record.verdict} />

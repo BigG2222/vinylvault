@@ -16,6 +16,7 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { discogsEnabled, findRelease, getPriceData, type ReleaseQuery } from './discogs.ts';
+import { fillContact } from './contact.ts';
 import { clientIp, deviceId, LIMITS, take, usageSummary } from './limits.ts';
 import { SYSTEM_PROMPT, VISION_SCHEMA } from './schema.ts';
 
@@ -27,8 +28,12 @@ const MAX_BODY_BYTES = 16 * 1024 * 1024;
 // SHA-256 in hex) lets render.yaml carry a fingerprint instead of the key itself, and takes precedence.
 const APP_KEY = process.env.APP_KEY ?? '';
 const APP_KEY_SHA256 = (process.env.APP_KEY_SHA256 ?? '').toLowerCase();
-const PRIVACY_HTML = new URL('../public/privacy.html', import.meta.url);
-const SUPPORT_HTML = new URL('../public/support.html', import.meta.url);
+/** Public pages: privacy policy, terms of use (the app's EULA) and support. */
+const PAGES: Record<string, URL> = {
+  '/privacy': new URL('../public/privacy.html', import.meta.url),
+  '/terms': new URL('../public/terms.html', import.meta.url),
+  '/support': new URL('../public/support.html', import.meta.url),
+};
 
 // Reads ANTHROPIC_API_KEY (or another configured credential) from the environment.
 const client = new Anthropic();
@@ -199,7 +204,8 @@ const REPORT_REASONS = ['wrong_release', 'wrong_pressing', 'wrong_authenticity',
 /**
  * A user flagged a scan result as wrong or offensive (Google Play's AI-generated
  * content policy asks for in-app reporting). Reports carry no photos, only the
- * reason, an optional note and what the result said; they go to the server log.
+ * reason, an optional note and what the result said; they go to the server log
+ * (search Render's logs for "RESULT REPORT"), which Render deletes within 30 days.
  */
 async function reportResult(req: IncomingMessage) {
   const body = await readJson<{ reason?: string; note?: string; result?: string }>(req, 4_000);
@@ -262,13 +268,10 @@ createServer(async (req, res) => {
   if (url.pathname !== '/health') console.log(`${new Date().toLocaleTimeString()} ${req.method} ${url.pathname}`);
   try {
     if (req.method === 'GET' && url.pathname === '/health') return send(res, 200, { ok: true, model: MODEL, discogs: discogsEnabled(), usage: usageSummary() });
-    if (req.method === 'GET' && url.pathname === '/privacy') {
+    const page = req.method === 'GET' ? PAGES[url.pathname] : undefined;
+    if (page) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      return void res.end(readFileSync(PRIVACY_HTML));
-    }
-    if (req.method === 'GET' && url.pathname === '/support') {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      return void res.end(readFileSync(SUPPORT_HTML));
+      return void res.end(fillContact(readFileSync(page, 'utf8')));
     }
     if (url.pathname.startsWith('/v1/') && !hasAppKey(req)) return send(res, 401, { error: 'Unauthorized' });
     if (req.method === 'GET' && url.pathname === '/v1/price') {
@@ -304,6 +307,6 @@ createServer(async (req, res) => {
   }
 }).listen(PORT, '0.0.0.0', () => {
   console.log(`VinylVault server on :${PORT} using ${MODEL}`);
-  console.log(discogsEnabled() ? 'Discogs: token found, prices and release links are on.' : 'Discogs: no token, the app will show demo prices.');
+  console.log(discogsEnabled() ? 'Discogs: token found, prices and release links are on.' : 'Discogs: no token, the app will show "No price available".');
   console.log(`Limits per day: ${LIMITS.analyzePerDevice} scans per phone, ${LIMITS.analyzePerIp} per network, ${LIMITS.analyzeTotal} in total.${APP_KEY || APP_KEY_SHA256 ? ' App key required.' : ''}`);
 });

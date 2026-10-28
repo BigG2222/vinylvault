@@ -2,9 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Linking, Pressable, StyleSheet, Switch, View } from 'react-native';
 import { Button, Chip, Row, Screen, SectionHeader, Surface, Text } from '@/components/ui';
-import { DISCOGS_NOTICE, env, FALLBACK_PRICING, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, FREE_LAUNCH, SUPPORT_EMAIL } from '@/config';
+import { DISCOGS_NOTICE, env, FALLBACK_PRICING, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, FREE_LAUNCH, legalUrl, SUPPORT_EMAIL } from '@/config';
 import type { Scenario } from '@/data/generate';
 import { isOcrAvailable } from '@/services/ondevice/ocr';
 import { isMockStore, manageSubscription } from '@/services/subscriptions';
@@ -18,7 +18,8 @@ type Health = { state: 'checking' } | { state: 'ok'; model: string; discogs: boo
 function useServerHealth() {
   const [health, setHealth] = useState<Health | null>(null);
   const check = useCallback(async () => {
-    if (!usingServer()) return;
+    // Only development builds show the server status, so release builds don't call /health.
+    if (!usingServer() || !__DEV__) return;
     setHealth({ state: 'checking' });
     try {
       const controller = new AbortController();
@@ -46,6 +47,8 @@ export default function Profile() {
   const setPref = useApp((s) => s.setPref);
   const setSubscription = useApp((s) => s.setSubscription);
   const clearSampleData = useApp((s) => s.clearSampleData);
+  const aiConsent = useApp((s) => s.aiConsent);
+  const setAiConsent = useApp((s) => s.setAiConsent);
   const { health, check } = useServerHealth();
   const remaining = scansRemaining({ usage, subscription });
   const premium = subscription.isPremium && !FREE_LAUNCH;
@@ -105,39 +108,65 @@ export default function Profile() {
         )}
       </Surface>
 
-      <SectionHeader title="Analysis" />
-      <Surface style={{ gap: spacing.md }}>
-        <StatusRow
-          label="Identification & checks"
-          value={!usingServer() ? 'Demo model (offline)' : health?.state === 'ok' ? 'Your server · connected' : health?.state === 'down' ? 'Your server · not reachable' : 'Your server · checking…'}
-          color={!usingServer() ? colors.review : health?.state === 'ok' ? colors.authentic : health?.state === 'down' ? colors.risk : colors.textSecondary}
-        />
-        <StatusRow
-          label="Prices"
-          value={!usingServer() ? 'Demo values' : health?.state === 'ok' ? (health.discogs ? 'Discogs' : 'Demo values (no Discogs token on server)') : '—'}
-          color={usingServer() && health?.state === 'ok' && health.discogs ? colors.authentic : colors.review}
-        />
-        <StatusRow label="On-device label reading" value={isOcrAvailable() ? 'On' : 'Needs the installed app (not Expo Go)'} color={isOcrAvailable() ? colors.authentic : colors.textMuted} />
-        {usingServer() && (
-          <>
-            <Text variant="caption" tone="muted">
-              Server: {env.visionProxyUrl}
-            </Text>
-            <Button label="Check connection" size="sm" variant="secondary" icon="refresh" onPress={check} />
-          </>
-        )}
+      <SectionHeader title="Privacy" />
+      <Surface style={{ gap: spacing.sm }}>
+        <Row style={{ justifyContent: 'space-between' }} gap={spacing.md}>
+          <Text variant="body" style={{ flex: 1 }}>
+            Send photos to AI (Claude by Anthropic)
+          </Text>
+          <Switch
+            value={aiConsent}
+            onValueChange={setAiConsent}
+            trackColor={{ true: colors.gold, false: colors.border }}
+            accessibilityLabel="Send photos to AI (Claude by Anthropic)"
+          />
+        </Row>
+        <Text variant="caption" tone="secondary">
+          {aiConsent
+            ? 'On: scan photos are sent to Claude, an AI service run by Anthropic, to identify and grade your record. Turn off to withdraw your permission.'
+            : "Off: nothing is sent. You'll be asked again before your next scan is analysed."}
+        </Text>
       </Surface>
+
+      {/* Developer status (server, Discogs token); hidden from users in release builds. */}
+      {__DEV__ && (
+        <>
+          <SectionHeader title="Analysis" />
+          <Surface style={{ gap: spacing.md }}>
+            <StatusRow
+              label="Identification & checks"
+              value={!usingServer() ? 'Demo model (offline)' : health?.state === 'ok' ? 'Your server · connected' : health?.state === 'down' ? 'Your server · not reachable' : 'Your server · checking…'}
+              color={!usingServer() ? colors.review : health?.state === 'ok' ? colors.authentic : health?.state === 'down' ? colors.risk : colors.textSecondary}
+            />
+            <StatusRow
+              label="Prices"
+              value={!usingServer() ? 'Demo values' : health?.state === 'ok' ? (health.discogs ? 'Discogs' : 'Demo values (no Discogs token on server)') : '—'}
+              color={usingServer() && health?.state === 'ok' && health.discogs ? colors.authentic : colors.review}
+            />
+            <StatusRow label="On-device label reading" value={isOcrAvailable() ? 'On' : 'Needs the installed app (not Expo Go)'} color={isOcrAvailable() ? colors.authentic : colors.textMuted} />
+            {usingServer() && (
+              <>
+                <Text variant="caption" tone="muted">
+                  Server: {env.visionProxyUrl}
+                </Text>
+                <Button label="Check connection" size="sm" variant="secondary" icon="refresh" onPress={check} />
+              </>
+            )}
+          </Surface>
+        </>
+      )}
 
       <SectionHeader title="Support" />
       <Surface style={{ paddingVertical: spacing.xs }}>
         <LinkRow icon="flag-outline" label="Report an incorrect result" onPress={() => router.push('/report')} />
         <LinkRow icon="chatbubble-ellipses-outline" label={premium ? 'Priority support' : 'Contact support'} onPress={() => support(premium ? 'Priority support' : 'Support')} />
         <LinkRow icon="bulb-outline" label="Send feedback" onPress={() => support('Feedback')} />
-        {usingServer() && <LinkRow icon="lock-closed-outline" label="Privacy policy" onPress={() => Linking.openURL(`${env.visionProxyUrl.replace(/\/$/, '')}/privacy`)} />}
+        <LinkRow icon="lock-closed-outline" label="Privacy policy" onPress={() => Linking.openURL(legalUrl('privacy'))} />
+        <LinkRow icon="document-outline" label="Terms of use" onPress={() => Linking.openURL(legalUrl('terms'))} />
         <LinkRow
           icon="document-text-outline"
           label={`Reports submitted (${reports.length})`}
-          onPress={() => Alert.alert('Your reports', reports.length ? `${reports.length} report(s). Thanks: we review every report we receive.` : 'No reports yet. Use "This looks wrong" on any result.')}
+          onPress={() => Alert.alert('Your reports', reports.length ? `${reports.length} report(s). Thanks: reports help us improve results.` : 'No reports yet. Use "This looks wrong" on any result.')}
           last
         />
       </Surface>
@@ -197,7 +226,7 @@ export default function Profile() {
       <SectionHeader title="About" />
       <Surface style={{ gap: spacing.sm }}>
         <Text variant="caption" tone="secondary">
-          Record details and prices come from Discogs. Discogs prices are refreshed when they are more than 6 hours old.
+          Record details and price suggestions come from Discogs. Discogs prices are refreshed when they are more than 6 hours old. When Discogs has no price, the app says so and links to the record on Discogs.
         </Text>
         <Text variant="caption" tone="secondary">
           {DISCOGS_NOTICE}

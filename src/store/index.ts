@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { DEFAULT_TAGS, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, FREE_LAUNCH, RECENT_SCANS_KEPT } from '@/config';
 import type { Scenario } from '@/data/generate';
 import { buildSampleData } from '@/data/samples';
-import { expirePrice, isPriceExpired } from '@/services/pricing';
+import { expirePrice, isPriceExpired, withoutInventedPrice } from '@/services/pricing';
 import { setDeviceId } from '@/services/serverHeaders';
 import type { SubscriptionState } from '@/services/subscriptions';
 import type { CollectionRecord, RecordIdentity, ScanResult, ScanSource, WrongResultReport } from '@/types';
@@ -173,6 +173,9 @@ export const useApp = create<AppState>()(
         return {
           ...current,
           ...p,
+          // Release builds drop any invented price an older version saved (the old demo fallback).
+          collection: (p.collection ?? current.collection).map((c) => withoutInventedPrice(c, c.identity)),
+          scans: (p.scans ?? current.scans).map((x) => withoutInventedPrice(x, x.matches[x.selectedMatchIndex]?.identity ?? x.matches[0].identity)),
           deviceId: p.deviceId || current.deviceId,
           subscription: FREE_LAUNCH ? LAUNCH_SUBSCRIPTION : (p.subscription ?? current.subscription),
         };
@@ -194,20 +197,7 @@ export function scansRemaining(s: Pick<AppState, 'usage' | 'subscription'>): num
   return Math.max(0, FREE_DAILY_SCANS - used);
 }
 
-/**
- * Collection total as a range. Records priced in a different currency from
- * the majority are left out of the sum (and counted) rather than mixed in.
- */
-export function collectionTotals(all: CollectionRecord[]) {
-  // Expired Discogs prices have no numbers to add; they are counted so the screen can offer a refresh.
-  const records = all.filter((r) => !isPriceExpired(r.price));
-  const counts = new Map<string, number>();
-  for (const r of records) counts.set(r.price.currency, (counts.get(r.price.currency) ?? 0) + 1);
-  const currency = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'USD';
-  const same = records.filter((r) => r.price.currency === currency);
-  const sum = same.reduce((t, c) => ({ low: t.low + c.price.low, avg: t.avg + c.price.avg, high: t.high + c.price.high }), { low: 0, avg: 0, high: 0 });
-  return { ...sum, currency, excluded: records.length - same.length, expired: all.length - records.length };
-}
+export { collectionTotals } from '@/utils/totals';
 
 export function allTags(customTags: string[]): string[] {
   return [...DEFAULT_TAGS, ...customTags];

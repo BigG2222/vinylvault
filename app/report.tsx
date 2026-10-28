@@ -65,7 +65,7 @@ export default function Report() {
     const sent = await sendReport(reason, note, identity ? `${identity.artist} – ${identity.title} (${identity.year})` : '');
     setSending(false);
     if (sent) {
-      notify('Thanks for telling us', 'We review every report and use them to improve VinylVault’s results.', [{ text: 'Done', onPress: () => router.back() }]);
+      notify('Thanks for telling us', 'Reports help us improve VinylVault’s results.', [{ text: 'Done', onPress: () => router.back() }]);
     } else {
       const label = REASONS.find((r) => r.key === reason)?.label ?? 'Wrong result';
       const mail = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`VinylVault: ${label}`)}&body=${encodeURIComponent(`${identity ? `${identity.artist} – ${identity.title}\n\n` : ''}${note}`)}`;
@@ -83,7 +83,7 @@ export default function Report() {
         <IconButton icon="close" label="Close" onPress={() => router.back()} />
       </Row>
       <Text variant="body" tone="secondary">
-        VinylVault uses AI to identify and check records, and it can get things wrong. Tell us what's off: we review every report, and they make the results better for everyone.
+        VinylVault uses AI to identify and check records, and it can get things wrong. Tell us what's off: reports help us improve results for everyone.
       </Text>
 
       {(reason === 'wrong_release' || reason === 'wrong_pressing') && hasAlternates && (

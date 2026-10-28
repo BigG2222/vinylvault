@@ -123,7 +123,7 @@ export interface ConditionEstimate {
   sleeve: GradeEstimate;
 }
 
-export type SaleSource = 'Discogs' | 'eBay' | 'Popsike' | 'Demo';
+export type SaleSource = 'Discogs' | 'eBay' | 'Popsike' | 'Example';
 
 export interface SaleRecord {
   price: number;
@@ -133,7 +133,8 @@ export interface SaleRecord {
   condition: string;
 }
 
-export type PriceSource = 'discogs' | 'demo';
+/** 'demo' = example values (development and sample records only); 'none' = no price available. */
+export type PriceSource = 'discogs' | 'demo' | 'none';
 
 export interface PriceEstimate {
   low: number;

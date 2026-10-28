@@ -225,6 +225,6 @@ export interface WrongResultReport {
   createdAt: string;
   scanId?: string;
   recordId?: string;
-  reason: 'wrong_release' | 'wrong_pressing' | 'wrong_authenticity' | 'wrong_condition' | 'wrong_price' | 'other';
+  reason: 'wrong_release' | 'wrong_pressing' | 'wrong_authenticity' | 'wrong_condition' | 'wrong_price' | 'offensive' | 'other';
   message: string;
 }

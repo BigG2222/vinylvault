@@ -137,7 +137,7 @@ export default function Profile() {
         <LinkRow
           icon="document-text-outline"
           label={`Reports submitted (${reports.length})`}
-          onPress={() => Alert.alert('Your reports', reports.length ? `${reports.length} report(s). We reply by email within 3 business days.` : 'No reports yet. Use "This looks wrong" on any result.')}
+          onPress={() => Alert.alert('Your reports', reports.length ? `${reports.length} report(s). Thanks: we review every report we receive.` : 'No reports yet. Use "This looks wrong" on any result.')}
           last
         />
       </Surface>

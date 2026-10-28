@@ -4,8 +4,10 @@ import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AiConsent } from '@/components/scan/AiConsent';
 import { Button, Row, Text } from '@/components/ui';
 import { runScanPipeline, STAGE_COPY, type PipelineStage } from '@/services/vision/pipeline';
+import { usingServer } from '@/services/vision/registry';
 import { VisionError } from '@/services/vision/types';
 import { useApp, useScanSession } from '@/store';
 import { colors, radii, spacing } from '@/theme';
@@ -19,6 +21,9 @@ export default function Processing() {
   const updateRecord = useApp((s) => s.updateRecord);
   const [stage, setStage] = useState<PipelineStage>('precheck');
   const [error, setError] = useState<{ title: string; body: string } | null>(null);
+  // Photos only leave the phone when the real analysis server is used.
+  const [asking, setAsking] = useState(() => usingServer() && !useApp.getState().aiConsent);
+  const setAiConsent = useApp((s) => s.setAiConsent);
   const abort = useRef<AbortController | null>(null);
 
   const run = useCallback(async () => {
@@ -73,7 +78,7 @@ export default function Processing() {
   }, [draft, recordScan, updateScan, updateRecord]);
 
   useEffect(() => {
-    run();
+    if (!asking) run();
     return () => abort.current?.abort();
     // Run once on mount; retries call run() directly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,6 +88,15 @@ export default function Processing() {
 
   return (
     <SafeAreaView style={styles.root}>
+      <AiConsent
+        visible={asking}
+        onCancel={() => (router.canDismiss() ? router.dismissAll() : router.replace('/'))}
+        onAllow={() => {
+          setAsking(false);
+          setAiConsent(true);
+          run();
+        }}
+      />
       <View style={styles.photos}>
         {draft.frontUri && <Image source={{ uri: draft.frontUri }} style={styles.photo} contentFit="cover" />}
         {draft.backUri && <Image source={{ uri: draft.backUri }} style={[styles.photo, { marginLeft: -30, transform: [{ rotate: '6deg' }] }]} contentFit="cover" />}

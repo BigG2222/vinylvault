@@ -1,7 +1,10 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Linking, Platform, StyleSheet, TextInput, View } from 'react-native';
 import { Button, Chip, IconButton, Row, Screen, Text } from '@/components/ui';
+import { env, SUPPORT_EMAIL } from '@/config';
+import { serverHeaders } from '@/services/serverHeaders';
+import { usingServer } from '@/services/vision/registry';
 import { useApp } from '@/store';
 import { colors, radii, spacing } from '@/theme';
 import type { WrongResultReport } from '@/types';
@@ -12,21 +15,65 @@ const REASONS: { key: WrongResultReport['reason']; label: string }[] = [
   { key: 'wrong_authenticity', label: 'Original / bootleg result is wrong' },
   { key: 'wrong_condition', label: 'Grade is off' },
   { key: 'wrong_price', label: 'Value looks wrong' },
+  { key: 'offensive', label: 'Something offensive or harmful' },
   { key: 'other', label: 'Something else' },
 ];
+
+function notify(title: string, body: string, buttons: { text: string; onPress?: () => void }[]) {
+  if (Platform.OS === 'web') {
+    window.alert(`${title}\n\n${body}`);
+    buttons[0]?.onPress?.();
+  } else Alert.alert(title, body, buttons);
+}
+
+/**
+ * Sends the report to the VinylVault server (Google Play's AI-generated content
+ * policy asks for in-app reporting of AI results). No photos are sent: only the
+ * reason, the note and which record the result named.
+ */
+async function sendReport(reason: string, note: string, result: string): Promise<boolean> {
+  if (!usingServer()) return false;
+  try {
+    const res = await fetch(`${env.visionProxyUrl.replace(/\/$/, '')}/v1/report-result`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...serverHeaders() },
+      body: JSON.stringify({ reason, note, result }),
+    });
+    return res.ok || res.status === 429;
+  } catch {
+    return false;
+  }
+}
 
 export default function Report() {
   const { scanId, recordId } = useLocalSearchParams<{ scanId?: string; recordId?: string }>();
   const addReport = useApp((s) => s.addReport);
   const hasAlternates = useApp((s) => (scanId ? (s.scans.find((x) => x.id === scanId)?.matches.length ?? 0) > 1 : false));
+  const identity = useApp((s) => {
+    const scan = scanId ? s.scans.find((x) => x.id === scanId) : undefined;
+    return scan ? scan.matches[scan.selectedMatchIndex]?.identity : s.collection.find((r) => r.id === recordId)?.identity;
+  });
   const [reason, setReason] = useState<WrongResultReport['reason'] | null>(null);
   const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
 
-  const submit = () => {
+  const submit = async () => {
     if (!reason) return;
-    // Queued locally; send to your support backend (with the scan photos) when wiring up the API.
-    addReport({ scanId, recordId, reason, message: message.trim() });
-    Alert.alert("Thanks, we're on it", 'A person will review the photos and each check. We reply by email within 3 business days.', [{ text: 'Done', onPress: () => router.back() }]);
+    const note = message.trim();
+    addReport({ scanId, recordId, reason, message: note });
+    setSending(true);
+    const sent = await sendReport(reason, note, identity ? `${identity.artist} – ${identity.title} (${identity.year})` : '');
+    setSending(false);
+    if (sent) {
+      notify('Thanks for telling us', 'We review every report and use them to improve VinylVault’s results.', [{ text: 'Done', onPress: () => router.back() }]);
+    } else {
+      const label = REASONS.find((r) => r.key === reason)?.label ?? 'Wrong result';
+      const mail = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`VinylVault: ${label}`)}&body=${encodeURIComponent(`${identity ? `${identity.artist} – ${identity.title}\n\n` : ''}${note}`)}`;
+      notify('Couldn’t send the report', 'Check your connection, or email it to us instead.', [
+        { text: 'Email it', onPress: () => void Linking.openURL(mail) },
+        { text: 'Cancel', onPress: () => undefined },
+      ]);
+    }
   };
 
   return (
@@ -36,7 +83,7 @@ export default function Report() {
         <IconButton icon="close" label="Close" onPress={() => router.back()} />
       </Row>
       <Text variant="body" tone="secondary">
-        Tell us what's off. Reports go to a person, not a bot, and they make the results better for everyone.
+        VinylVault uses AI to identify and check records, and it can get things wrong. Tell us what's off: we review every report, and they make the results better for everyone.
       </Text>
 
       {(reason === 'wrong_release' || reason === 'wrong_pressing') && hasAlternates && (
@@ -61,7 +108,7 @@ export default function Report() {
         accessibilityLabel="Report details"
       />
 
-      <Button label="Send report" size="lg" disabled={!reason} onPress={submit} />
+      <Button label="Send report" size="lg" disabled={!reason} loading={sending} onPress={submit} />
     </Screen>
   );
 }

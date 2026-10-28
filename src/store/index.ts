@@ -31,8 +31,11 @@ interface AppState {
   prefs: Prefs;
   reports: WrongResultReport[];
   customTags: string[];
+  /** The person agreed that scan photos are sent to Anthropic's Claude to be analysed (Apple 5.1.2). */
+  aiConsent: boolean;
 
   completeOnboarding(): void;
+  setAiConsent(v: boolean): void;
   clearSampleData(): void;
   recordScan(result: ScanResult): void;
   updateScan(result: ScanResult): void;
@@ -60,7 +63,9 @@ export const useApp = create<AppState>()(
       prefs: { viewMode: 'grid', demoScenario: 'auto' },
       reports: [],
       customTags: [],
+      aiConsent: false,
 
+      setAiConsent: (aiConsent) => set({ aiConsent }),
       completeOnboarding() {
         const { collection, scans } = get();
         // Seed sample records once so first-run screens aren't empty; clearly labelled and removable.

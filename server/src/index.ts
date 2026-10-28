@@ -177,17 +177,40 @@ async function price(url: URL) {
   };
 }
 
-async function readJson(req: IncomingMessage): Promise<AnalyzeBody> {
+async function readJson<T>(req: IncomingMessage, maxBytes = MAX_BODY_BYTES): Promise<T> {
   const chunks: Buffer[] = [];
   let size = 0;
   for await (const chunk of req) {
     size += chunk.length;
-    if (size > MAX_BODY_BYTES) throw new HttpError(413, 'Images too large.');
+    if (size > maxBytes) throw new HttpError(413, 'Images too large.');
     chunks.push(chunk);
   }
-  const body = JSON.parse(Buffer.concat(chunks).toString('utf8')) as AnalyzeBody;
+  return JSON.parse(Buffer.concat(chunks).toString('utf8')) as T;
+}
+
+async function readAnalyzeBody(req: IncomingMessage): Promise<AnalyzeBody> {
+  const body = await readJson<AnalyzeBody>(req);
   if (!Array.isArray(body.images) || !body.images.some((i) => i.role === 'front')) throw new HttpError(400, 'A front cover image is required.');
   return body;
+}
+
+const REPORT_REASONS = ['wrong_release', 'wrong_pressing', 'wrong_authenticity', 'wrong_condition', 'wrong_price', 'offensive', 'other'];
+
+/**
+ * A user flagged a scan result as wrong or offensive (Google Play's AI-generated
+ * content policy asks for in-app reporting). Reports carry no photos, only the
+ * reason, an optional note and what the result said; they go to the server log.
+ */
+async function reportResult(req: IncomingMessage) {
+  const body = await readJson<{ reason?: string; note?: string; result?: string }>(req, 4_000);
+  const reason = String(body.reason ?? '');
+  if (!REPORT_REASONS.includes(reason)) throw new HttpError(400, 'Choose what was wrong.');
+  const dev = deviceId(req);
+  const keys: [string, number][] = [[`ip:report:${clientIp(req)}`, 30]];
+  if (dev) keys.push([`device:report:${dev}`, 10]);
+  if (take(keys)) throw new HttpError(429, 'Thanks, we already have your reports for today.');
+  const clean = (v: unknown, n: number) => String(v ?? '').replace(/\s+/g, ' ').slice(0, n);
+  console.log(`RESULT REPORT reason=${reason} device=${dev || '-'} result=${JSON.stringify(clean(body.result, 200))} note=${JSON.stringify(clean(body.note, 500))}`);
 }
 
 function hasAppKey(req: IncomingMessage) {
@@ -253,9 +276,13 @@ createServer(async (req, res) => {
       return send(res, 200, await price(url));
     }
     if (req.method === 'POST' && url.pathname === '/v1/analyze') {
-      const body = await readJson(req);
+      const body = await readAnalyzeBody(req);
       takeScan(req);
       return send(res, 200, await analyze(body));
+    }
+    if (req.method === 'POST' && url.pathname === '/v1/report-result') {
+      await reportResult(req);
+      return send(res, 200, { ok: true });
     }
     return send(res, 404, { error: 'Not found' });
   } catch (e) {

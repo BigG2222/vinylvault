@@ -20,6 +20,23 @@ const SHOTS = [
   ['screenshot-4-record.png', '/record/sample_lee-morgan-sidewinder-1964'],
 ];
 
+// Real sample records → made-up ones for the store screenshots (longest names first).
+const FICTIONAL = [
+  ['Pink Floyd Records', 'Violet Engine Records'], ['Pink Floyd', 'Violet Engine'], ['The Dark Side Of The Moon', 'The Far Side Of The Tide'],
+  ['The Beatles', 'The Marlowe Set'], ['Abbey Road', 'Harbour Lane'], ['Parlophone', 'Parlane'], ['Apple', 'Orchard'],
+  ['Miles Davis', 'Milo Daniels'], ['Kind Of Blue', 'Shade Of Grey'], ['Columbia', 'Colvale'],
+  ['Fleetwood Mac', 'Fernwood Bay'], ['Rumours', 'Whispers'], ['Warner Bros.', 'Warden Bros.'],
+  ['Michael Jackson', 'Marcus Jay'], ['Thriller', 'Night Shift'], ['Epic', 'Epoch'],
+  ['Nirvana', 'Halcyon'], ['Nevermind', 'Undertow'], ['DGC', 'DSR'],
+  ['Lee Morgan', 'Lew Mercer'], ['The Sidewinder', 'The Crosswind'], ['Blue Note', 'Blue Hour'],
+  ['Led Zeppelin IV', 'Iron Kite IV'], ['Led Zeppelin', 'Iron Kite'], ['Atlantic', 'Pacifica'],
+  ['Daft Punk', 'Neon Static'], ['Discovery', 'Signal'], ['Virgin', 'Vireo'],
+  ['Bob Marley & The Wailers', 'Bo Marston & The Tidesmen'], ['Legend', 'Lore'], ['Island', 'Isle'],
+  ['Carole King', 'Clara Keane'], ['Tapestry', 'Patchwork'], ['A&M', 'Arc'], ['Ode', 'Ovid'],
+  ['Kendrick Lamar', 'Kenji Lamont'], ['good kid, m.A.A.d city', 'quiet kid, loud city'], ['Top Dawg / Aftermath', 'Top Floor / Afterglow'],
+  ['Harvest', 'Hayfield'], ['Capitol', 'Keystone'], ['the EMI box', 'the EMX box'],
+];
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const chrome = spawn(CHROME, ['--headless=new', `--remote-debugging-port=${PORT}`, `--user-data-dir=${mkdtempSync(join(tmpdir(), 'vv-shots-'))}`, '--hide-scrollbars', 'about:blank'], { stdio: 'ignore' });
 
@@ -47,21 +64,51 @@ try {
       pending.set(id, (m) => (m.error ? reject(new Error(m.error.message)) : resolve(m.result)));
       ws.send(JSON.stringify({ id, method, params }));
     });
-  const evaluate = (expression) => send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }).then((r) => r.result.value);
+  const evaluate = (expression) =>
+    send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }).then((r) => {
+      if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description ?? r.exceptionDetails.text);
+      return r.result.value;
+    });
   const clickText = (label) =>
     evaluate(`(() => { const b = [...document.querySelectorAll('[role=button]')].find(e => e.innerText.trim() === ${JSON.stringify(label)}); if (b) b.click(); return !!b; })()`);
 
   await send('Emulation.setDeviceMetricsOverride', { ...VIEW, deviceScaleFactor: 3, mobile: true });
   await send('Page.navigate', { url: BASE });
   // First run: finish onboarding so the sample collection is loaded. The first web bundle can take a while.
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 300; i++) {
     await sleep(1000);
+    if (i % 30 === 29) console.log('waiting for the app to load…');
     if (await clickText('Start scanning free')) {
       await sleep(2500);
       break;
     }
     await clickText('Skip');
   }
+
+  // Store screenshots never show real artists, albums, labels or catalogue numbers (trademark and
+  // celebrity-name rules): the saved sample collection is rewritten with made-up ones before shooting.
+  const leftovers = await evaluate(`(() => {
+    const NAMES = ${JSON.stringify(FICTIONAL)};
+    const KEY = 'vinylvault-v1';
+    let text = localStorage.getItem(KEY) ?? '';
+    for (const [real, made] of NAMES) text = text.split(real).join(made);
+    const state = JSON.parse(text);
+    let n = 0;
+    const walk = (v) => {
+      if (Array.isArray(v)) return v.forEach(walk);
+      if (!v || typeof v !== 'object') return;
+      for (const k of Object.keys(v)) {
+        if ((k === 'catalogNumber' || k === 'runout') && typeof v[k] === 'string' && v[k]) v[k] = 'VV-' + String(101 + (n++ % 899));
+        else if (k === 'barcode' && typeof v[k] === 'string' && /[0-9]{8,}/.test(v[k])) v[k] = '5000000' + String(100000 + n++).slice(-6);
+        else walk(v[k]);
+      }
+    };
+    walk(state);
+    const out = JSON.stringify(state);
+    localStorage.setItem(KEY, out);
+    return ${JSON.stringify(FICTIONAL.map(([real]) => real))}.filter((r) => out.includes(r));
+  })()`);
+  if (leftovers.length) throw new Error('Real names still in the sample data: ' + leftovers.join(', '));
 
   for (const [file, path] of SHOTS) {
     await send('Page.navigate', { url: BASE + path });

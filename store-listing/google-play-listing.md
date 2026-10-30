@@ -52,7 +52,7 @@ GOOD TO KNOW
 - App icon: play-icon-512.png (512 × 512)
 - Feature graphic: feature-graphic-1024x500.png
 - Phone screenshots: 2 to 8 needed (Home, a scan result, the collection, a record's detail)
-- **To do before the next submission (28 Oct 2026 policy check):** the current screenshots (`screenshot-*.png` here and in `app-store/`) show real artists, albums and labels (Pink Floyd, Miles Davis, Harvest) and invented example prices ($415, a total of $436–$983). Regenerate them with **fictional** artists, titles and labels, and with prices either hidden or clearly marked "Example". Then upload the new set in Play Console and App Store Connect. Not done yet.
+- Screenshots regenerated 30 Oct 2026 by `scripts/store-screenshots.mjs`, which swaps every real artist, album, label and catalogue number in the sample data for made-up ones (Violet Engine, Milo Daniels, Lew Mercer…); sample prices are labelled "Example value (sample records)" and "not market data". App Store set (`app-store/`, IOS=1) still to regenerate.
 
 ---
 

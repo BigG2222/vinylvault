@@ -8,7 +8,7 @@ VinylVault: Record Scanner
 
 ## Short description (max 80 characters)
 
-Photograph a vinyl record to identify the pressing, grade it and check its value.
+Photograph a vinyl record to identify the pressing, grade it and check its value
 
 ## Full description (max 4,000 characters)
 

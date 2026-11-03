@@ -1,3 +1,4 @@
+import { IS_DEV } from '../config';
 import { mergeOnDeviceEvidence } from '../services/vision/merge';
 import { computeVerdict } from '../services/vision/verdict';
 import type { OnDevicePrecheck } from '../services/ondevice/types';
@@ -101,4 +102,9 @@ export function buildSampleData(now = new Date()): { collection: CollectionRecor
     }
   });
   return { collection, scans };
+}
+
+/** Release builds never keep sample records, including ones an older version saved. */
+export function withoutSamples<T extends { isSample?: boolean }>(items: T[], dev = IS_DEV): T[] {
+  return dev ? items : items.filter((i) => !i.isSample);
 }

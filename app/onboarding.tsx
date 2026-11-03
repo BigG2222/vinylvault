@@ -68,7 +68,7 @@ export default function Onboarding() {
         <Button label={index === PAGES.length - 1 ? 'Start scanning free' : 'Continue'} size="lg" full onPress={next} />
         {index === PAGES.length - 1 && (
           <Text variant="caption" tone="muted" align="center">
-            No account or payment needed. Upgrade anytime from Profile.
+            {FREE_LAUNCH ? 'No account or payment needed.' : 'No account or payment needed. Upgrade anytime from Profile.'}
           </Text>
         )}
       </View>

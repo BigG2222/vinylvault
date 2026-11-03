@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { DEFAULT_TAGS, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, FREE_LAUNCH, RECENT_SCANS_KEPT } from '@/config';
+import { DEFAULT_TAGS, FREE_COLLECTION_LIMIT, FREE_DAILY_SCANS, FREE_LAUNCH, IS_DEV, RECENT_SCANS_KEPT } from '@/config';
 import type { Scenario } from '@/data/generate';
-import { buildSampleData } from '@/data/samples';
+import { buildSampleData, withoutSamples } from '@/data/samples';
 import { expirePrice, isPriceExpired, withoutInventedPrice } from '@/services/pricing';
 import { setDeviceId } from '@/services/serverHeaders';
 import type { SubscriptionState } from '@/services/subscriptions';
@@ -68,8 +68,8 @@ export const useApp = create<AppState>()(
       setAiConsent: (aiConsent) => set({ aiConsent }),
       completeOnboarding() {
         const { collection, scans } = get();
-        // Seed sample records once so first-run screens aren't empty; clearly labelled and removable.
-        if (!collection.length && !scans.length) {
+        // Sample records are for development and store screenshots only: release builds start empty.
+        if (IS_DEV && !collection.length && !scans.length) {
           const sample = buildSampleData();
           set({ onboarded: true, collection: sample.collection, scans: sample.scans });
         } else {
@@ -173,9 +173,9 @@ export const useApp = create<AppState>()(
         return {
           ...current,
           ...p,
-          // Release builds drop any invented price an older version saved (the old demo fallback).
-          collection: (p.collection ?? current.collection).map((c) => withoutInventedPrice(c, c.identity)),
-          scans: (p.scans ?? current.scans).map((x) => withoutInventedPrice(x, x.matches[x.selectedMatchIndex]?.identity ?? x.matches[0].identity)),
+          // Release builds drop sample records an older version added, and any invented price it saved (the old demo fallback).
+          collection: withoutSamples(p.collection ?? current.collection).map((c) => withoutInventedPrice(c, c.identity)),
+          scans: withoutSamples(p.scans ?? current.scans).map((x) => withoutInventedPrice(x, x.matches[x.selectedMatchIndex]?.identity ?? x.matches[0].identity)),
           deviceId: p.deviceId || current.deviceId,
           subscription: FREE_LAUNCH ? LAUNCH_SUBSCRIPTION : (p.subscription ?? current.subscription),
         };

@@ -36,6 +36,8 @@ GOOD TO KNOW
 • An internet connection is needed for identification and prices.
 • Data provided by Discogs. This application uses Discogs' API but is not affiliated with, sponsored or endorsed by Discogs. 'Discogs' is a trademark of Zink Media, LLC.
 
+Screenshots show example data.
+
 ## Category and tags
 
 - Category: Music & Audio

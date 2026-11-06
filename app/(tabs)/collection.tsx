@@ -60,7 +60,7 @@ export default function Collection() {
       return;
     }
     const records = visible;
-    Alert.alert('Export collection', `${records.length} records${filtered ? ' (current filters)' : ''}`, [
+    Alert.alert('Export collection', `${records.length} records${filtered ? ' (current filters)' : ''}. Prices aren't included; open a record for its current price.`, [
       { text: 'CSV spreadsheet', onPress: () => exportCsv(records).catch(() => Alert.alert('Export failed')) },
       { text: 'PDF report', onPress: () => exportPdf(records).catch(() => Alert.alert('Export failed')) },
       { text: 'Cancel', style: 'cancel' },

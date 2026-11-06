@@ -246,7 +246,7 @@ function PermissionGate({ canAsk, onAsk }: { canAsk: boolean; onAsk: () => void 
       <Ionicons name="camera-outline" size={40} color={colors.gold} />
       <Text variant="title">Camera access needed</Text>
       <Text variant="body" tone="secondary">
-        VinylVault photographs the covers, label and runout of your record and reads its barcode to identify the pressing, estimate condition and run the pressing checks.
+        Labelsight photographs the covers, label and runout of your record and reads its barcode to identify the pressing, estimate condition and run the pressing checks.
       </Text>
       {canAsk ? <Button label="Allow camera" size="lg" onPress={onAsk} /> : <Button label="Open Settings" size="lg" onPress={() => Linking.openSettings()} />}
       <Button label="Not now" variant="ghost" onPress={() => router.back()} />

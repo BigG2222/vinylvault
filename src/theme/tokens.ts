@@ -1,7 +1,7 @@
 import type { CheckStatus, PressingVerdict } from '@/types';
 
 /**
- * VinylVault design tokens (shared with CardVault). Dark-first: deep navy surfaces, cream text,
+ * Labelsight design tokens (shared with CardVault). Dark-first: deep navy surfaces, cream text,
  * gold reserved for value and premium, semantic colors only for verdicts.
  */
 export const colors = {

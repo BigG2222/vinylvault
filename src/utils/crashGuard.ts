@@ -22,6 +22,6 @@ if (errorUtils && !__DEV__) {
     if (!isFatal) return previous(error, isFatal);
     if (shown) return;
     shown = true;
-    setTimeout(() => Alert.alert('VinylVault hit a problem', `Please screenshot this and send it to support.\n\n${describeError(error)}`), 0);
+    setTimeout(() => Alert.alert('Labelsight hit a problem', `Please screenshot this and send it to support.\n\n${describeError(error)}`), 0);
   });
 }

@@ -57,7 +57,7 @@ export const env = {
 };
 
 /**
- * Pages served by the VinylVault server (server/public): privacy policy, terms of use (EULA) and support.
+ * Pages served by the Labelsight server (server/public): privacy policy, terms of use (EULA) and support.
  * The live server is the only web address this project controls.
  */
 export const PUBLIC_SERVER_URL = 'https://vinylvault-vision.onrender.com';

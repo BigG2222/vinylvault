@@ -7,7 +7,7 @@ import { collectionToCsv, collectionToHtml } from './format';
 export { collectionToCsv, collectionToHtml, EXPORT_PRICE_NOTE } from './format';
 
 export async function exportCsv(records: CollectionRecord[]) {
-  const file = new File(Paths.cache, `vinylvault-collection-${Date.now()}.csv`);
+  const file = new File(Paths.cache, `labelsight-collection-${Date.now()}.csv`);
   file.write(collectionToCsv(records));
   await Sharing.shareAsync(file.uri, { mimeType: 'text/csv', dialogTitle: 'Export collection', UTI: 'public.comma-separated-values-text' });
 }

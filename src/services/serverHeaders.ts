@@ -8,7 +8,7 @@ export function setDeviceId(id: string) {
 }
 
 /**
- * Sent with every request to the VinylVault server. The device ID lets the
+ * Sent with every request to the Labelsight server. The device ID lets the
  * server apply per-install daily limits; the app key keeps casual traffic off
  * the server. Neither is a secret in the strong sense: both ship in the app.
  */

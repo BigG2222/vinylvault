@@ -90,7 +90,7 @@ export default function Profile() {
             {!FREE_LAUNCH && <Meter label="Collection" value={owned} max={FREE_COLLECTION_LIMIT} caption={`${owned} of ${FREE_COLLECTION_LIMIT} records saved`} />}
             {FREE_LAUNCH && (
               <Text variant="caption" tone="secondary">
-                VinylVault is free while it's new. Every feature is included.
+                Labelsight is free while it's new. Every feature is included.
               </Text>
             )}
           </View>
@@ -234,7 +234,7 @@ export default function Profile() {
       </Surface>
 
       <Text variant="caption" tone="muted" align="center">
-        VinylVault {Constants.expoConfig?.version} · Grades and values are estimates, not appraisals.
+        Labelsight {Constants.expoConfig?.version} · Grades and values are estimates, not appraisals.
       </Text>
     </Screen>
   );

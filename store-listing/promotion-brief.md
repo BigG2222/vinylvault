@@ -1,12 +1,12 @@
-# VinylVault: promotion brief
+# Labelsight: promotion brief
 
-You are helping promote VinylVault, a new mobile app for vinyl record collectors. Follow this brief exactly. If something isn't covered here, don't invent it: leave it out or ask the developer.
+You are helping promote Labelsight, a new mobile app for vinyl record collectors. Follow this brief exactly. If something isn't covered here, don't invent it: leave it out or ask the developer.
 
 ---
 
 ## 1. The app in one line
 
-VinylVault: Record Scanner. Photograph a vinyl record to see which pressing it is, how it grades and what it's worth.
+Labelsight: Record Scanner. Photograph a vinyl record to see which pressing it is, how it grades and what it's worth.
 
 ## 2. Launch status (check before every post)
 
@@ -20,7 +20,7 @@ VinylVault: Record Scanner. Photograph a vinyl record to see which pressing it i
 
 ## 3. What the app does (facts you can use)
 
-The user takes photos of the **front cover, back cover and centre label** of a record. The **runout etching** (the writing in the dead wax) and the **barcode** are optional extra steps. VinylVault then shows:
+The user takes photos of the **front cover, back cover and centre label** of a record. The **runout etching** (the writing in the dead wax) and the **barcode** are optional extra steps. Labelsight then shows:
 
 1. **Pressing match.** The top 2–3 most likely pressings, with label, catalogue number, country and year, each with a confidence score. If it isn't sure, the user picks the right one.
 2. **Condition estimate.** Separate grades for the vinyl and the sleeve on the standard collector scale (Mint, Near Mint, VG+, VG, G+, G, Fair, Poor), with the wear it could see: scuffs, scratches, warps, ring wear, seam splits, writing.
@@ -29,7 +29,7 @@ The user takes photos of the **front cover, back cover and centre label** of a r
 5. **Collection.** Save records with notes and folders. Search and filter by artist, genre, decade, format, condition and value. Export to CSV or PDF. The collection is stored on the phone only.
 
 Other facts:
-- **Works on older records.** Most records from before about 1980 have no barcode. VinylVault doesn't need one: it reads the cover, the label text and the runout.
+- **Works on older records.** Most records from before about 1980 have no barcode. Labelsight doesn't need one: it reads the cover, the label text and the runout.
 - **Check before you buy.** "Check from photos" works with saved pictures, such as a seller's listing photos, to look at a record before buying it.
 - **Price and limits.** Free while it's new: every feature included, 10 scans a day. No ads. No account or sign-up needed.
 - **Speed.** A scan takes about 20–40 seconds.
@@ -46,7 +46,7 @@ Other facts:
 
 **Discogs and trademarks**
 - You may say "uses Discogs marketplace data for prices" or "price data provided by Discogs".
-- You must say, or at least never contradict: **VinylVault is not affiliated with, sponsored or endorsed by Discogs.**
+- You must say, or at least never contradict: **Labelsight is not affiliated with, sponsored or endorsed by Discogs.**
 - Don't use the Discogs logo or name in a way that suggests a partnership. Don't use "Discogs" as a hashtag for promotion.
 - "Goldmine" is a trademark: say "standard collector grading scale (M to P)" or "Goldmine-style grades", not "official Goldmine grading".
 - Don't use artists' names, album art or band logos in ads in a way that suggests the artist endorses the app. Mentioning that it works on, for example, "a 1973 UK pressing" is fine.
@@ -69,7 +69,7 @@ Other facts:
 ## 6. Key messages (pick one or two per post)
 
 1. "Which pressing is it? Snap the cover, back and label to find out."
-2. "Original or reissue? VinylVault reads the label, catalogue number and runout to suggest the most likely pressing."
+2. "Original or reissue? Labelsight reads the label, catalogue number and runout to suggest the most likely pressing."
 3. "Spot possible bootlegs before you buy, even from a seller's photos."
 4. "See a value range for your copy's condition, not just a single number."
 5. "Works on old records with no barcode."
@@ -104,20 +104,20 @@ Use 3–6 per post on Instagram and TikTok, 1–2 on X, and none on Reddit or in
 **Reddit (text post)**
 > Title: I built a free app that tries to tell you which pressing of a record you have, and I'd love feedback from collectors
 >
-> Hi all. I'm the developer of VinylVault, a phone app for record collectors (Android and iPhone, launching soon). You photograph the front, back and centre label, and optionally the runout and barcode. It suggests the most likely pressings with confidence scores, estimates the vinyl and sleeve grades separately, runs a few plain-language checks for possible bootleg signs, and shows a low/average/high value range using Discogs marketplace data. (Not affiliated with Discogs.)
+> Hi all. I'm the developer of Labelsight, a phone app for record collectors (Android and iPhone, launching soon). You photograph the front, back and centre label, and optionally the runout and barcode. It suggests the most likely pressings with confidence scores, estimates the vinyl and sleeve grades separately, runs a few plain-language checks for possible bootleg signs, and shows a low/average/high value range using Discogs marketplace data. (Not affiliated with Discogs.)
 >
 > It's an estimate from photos, not an appraisal, and it can't hear the record, so you still need to play it. It's free while it's new (10 scans a day, no account, no ads).
 >
 > What would make something like this useful (or useless) for you? Happy to answer questions.
 
 **Instagram / TikTok caption**
-> Original or reissue? 🔍 Snap the cover, back and label, and VinylVault suggests the most likely pressing, estimates the grade and shows a value range. Coming soon to iPhone and Android, free while it's new. #vinyl #vinylcollection #recordcollector #cratedigging #firstpressing
+> Original or reissue? 🔍 Snap the cover, back and label, and Labelsight suggests the most likely pressing, estimates the grade and shows a value range. Coming soon to iPhone and Android, free while it's new. #vinyl #vinylcollection #recordcollector #cratedigging #firstpressing
 
 **X (Twitter)**
-> Ever wondered if that record is a first pressing? VinylVault reads the label, catalogue number and runout to suggest the most likely pressing, plus a grade and value range. Coming soon, free while it's new. #vinyl
+> Ever wondered if that record is a first pressing? Labelsight reads the label, catalogue number and runout to suggest the most likely pressing, plus a grade and value range. Coming soon, free while it's new. #vinyl
 
 **Facebook group**
-> Hi everyone, hope this is OK to share (admins, please remove if not). I've made a free app called VinylVault for identifying pressings from photos: it suggests the likely pressing, estimates the condition of the vinyl and sleeve, flags possible bootleg signs and gives a value range. It's launching soon on iPhone and Android. I'd really value feedback from people who know their records.
+> Hi everyone, hope this is OK to share (admins, please remove if not). I've made a free app called Labelsight for identifying pressings from photos: it suggests the likely pressing, estimates the condition of the vinyl and sleeve, flags possible bootleg signs and gives a value range. It's launching soon on iPhone and Android. I'd really value feedback from people who know their records.
 
 ## 11. Ideas for short demo videos (for the developer to film)
 
@@ -135,8 +135,8 @@ Always show real results from the app. Never fake or edit a result screen.
 - **Do I need an account?** No.
 - **How accurate is it?** It gives estimates from photos, with a confidence score on every result. If the top match is wrong, you can pick another pressing. Please report anything that looks wrong using the flag button in the app.
 - **Can it tell if my record skips or has surface noise?** No. Photos can't show how a record sounds, so play it before buying or selling.
-- **Where do prices come from?** From Discogs marketplace data where available. VinylVault isn't affiliated with Discogs.
-- **What happens to my photos?** They're sent securely for analysis and not stored by VinylVault. The collection stays on your phone. Full details: https://vinylvault-vision.onrender.com/privacy
+- **Where do prices come from?** From Discogs marketplace data where available. Labelsight isn't affiliated with Discogs.
+- **What happens to my photos?** They're sent securely for analysis and not stored by Labelsight. The collection stays on your phone. Full details: https://vinylvault-vision.onrender.com/privacy
 - **Does it work on CDs or cassettes?** No, vinyl only (LP, 12", 10", 7").
 - **When can I get it?** It's coming soon to iPhone and Android. Follow for the launch.
 - **Help or feedback?** Email lanansipsip@gmail.com or see https://vinylvault-vision.onrender.com/support
@@ -175,7 +175,7 @@ You may suggest improvements to the store listings, but the **developer decides 
 
 | Field | Limit | Current text |
 |---|---|---|
-| App name | 30 | VinylVault: Record Scanner |
+| App name | 30 | Labelsight: Record Scanner |
 | Short description | 80 | Photograph a vinyl record to identify the pressing, grade it and see its value. |
 | Full description | 4000 | The text in section 3, in this order: intro; "WHAT YOU GET FROM EACH SCAN"; "WORKS FOR OLDER RECORDS TOO"; "YOUR COLLECTION"; "FREE WHILE IT'S NEW"; "GOOD TO KNOW" (estimates, not appraisals; photos can't hear; internet needed; Discogs data, not affiliated) |
 | Category | – | Music & audio |
@@ -190,7 +190,7 @@ Google Play rules:
 
 | Field | Limit | Current text |
 |---|---|---|
-| Name | 30 | VinylVault: Record Scanner |
+| Name | 30 | Labelsight: Record Scanner |
 | Subtitle | 30 | Identify, grade & value vinyl |
 | Promotional text | 170 | Photograph a record to see which pressing it is, how it grades and its Discogs price suggestions. Free while it's new. (Updated 28 Oct 2026: paste into App Store Connect.) |
 | Keywords | 100 (commas, no spaces) | vinyl,records,scanner,LP,album,collection,pressing,grading,value,crate,catalog,identify,music |

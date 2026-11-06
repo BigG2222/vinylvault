@@ -37,7 +37,7 @@ export default function Onboarding() {
       <LinearGradient colors={['#0E1A33', colors.bg]} style={StyleSheet.absoluteFill} />
       <Row style={styles.top}>
         <Text variant="label" tone="gold">
-          VinylVault
+          Labelsight
         </Text>
         {index < PAGES.length - 1 && <Button label="Skip" variant="ghost" size="sm" onPress={() => goTo(PAGES.length - 1)} />}
       </Row>
@@ -97,7 +97,7 @@ function WhatPage() {
     <View style={styles.page}>
       <Text variant="display">Know which pressing you own.</Text>
       <Text variant="body" tone="secondary">
-        Photograph the covers and the label. VinylVault narrows down the exact pressing, grades the vinyl and sleeve, checks for bootleg signs and shows a value range.
+        Photograph the covers and the label. Labelsight narrows down the exact pressing, grades the vinyl and sleeve, checks for bootleg signs and shows a value range.
       </Text>
       <View style={{ gap: spacing.lg, marginTop: spacing.md }}>
         <Feature icon="search" title="Pressings you can verify" body="Top matches with confidence scores, by label, catalog number, country and year. Pick the right one if we're unsure." />

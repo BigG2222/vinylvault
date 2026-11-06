@@ -1,5 +1,5 @@
 /**
- * Vision + pricing proxy for VinylVault.
+ * Vision + pricing proxy for Labelsight.
  *
  * The app never holds an API key: it POSTs photos here, and this server calls
  * Claude with a strict JSON schema and returns the structured result, enriched
@@ -230,7 +230,7 @@ function hasAppKey(req: IncomingMessage) {
 const LIMIT_MESSAGE: Record<string, string> = {
   device: 'Daily scan limit reached on this phone. It resets at midnight UTC.',
   ip: 'Daily scan limit reached on this network. It resets at midnight UTC.',
-  total: 'VinylVault is very busy today. Please try again tomorrow.',
+  total: 'Labelsight is very busy today. Please try again tomorrow.',
 };
 
 /** Applies the daily caps for one analysis; throws 429 when any is full. */
@@ -306,7 +306,7 @@ createServer(async (req, res) => {
     send(res, 500, { error: 'Internal error' });
   }
 }).listen(PORT, '0.0.0.0', () => {
-  console.log(`VinylVault server on :${PORT} using ${MODEL}`);
+  console.log(`Labelsight server on :${PORT} using ${MODEL}`);
   console.log(discogsEnabled() ? 'Discogs: token found, prices and release links are on.' : 'Discogs: no token, the app will show "No price available".');
   console.log(`Limits per day: ${LIMITS.analyzePerDevice} scans per phone, ${LIMITS.analyzePerIp} per network, ${LIMITS.analyzeTotal} in total.${APP_KEY || APP_KEY_SHA256 ? ' App key required.' : ''}`);
 });

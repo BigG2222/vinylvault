@@ -87,7 +87,7 @@ export default function Result() {
     <Screen edges={[]}>
       <Stack.Screen options={{ title: verdictMeta[scan.verdict].short }} />
 
-      {scan.isSample && <Banner icon="information-circle" color={colors.info} text="Sample result to show how VinylVault works. Scan your own record to see real results." />}
+      {scan.isSample && <Banner icon="information-circle" color={colors.info} text="Sample result to show how Labelsight works. Scan your own record to see real results." />}
       {!scan.isSample && scan.provider.startsWith('Demo model') && (
         <Banner icon="flask-outline" color={colors.review} bold="Demo mode. " text="This result is simulated and does not reflect your photos. Connect the vision server to analyze real records." />
       )}

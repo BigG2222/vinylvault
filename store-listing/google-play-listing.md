@@ -1,10 +1,10 @@
-# VinylVault: Google Play listing (draft)
+# Labelsight: Google Play listing (draft)
 
 Copy each section into Play Console → Grow users → Store presence → Main store listing.
 
 ## App name (max 30 characters)
 
-VinylVault: Record Scanner
+Labelsight: Record Scanner
 
 ## Short description (max 80 characters)
 
@@ -12,7 +12,7 @@ Photograph a vinyl record to identify the pressing, grade it and check its value
 
 ## Full description (max 4,000 characters)
 
-VinylVault identifies vinyl records from photos. Photograph the front cover, back cover and centre label (and, if you like, the runout etching and barcode) and VinylVault suggests the most likely pressings, estimates the condition and shows price suggestions from Discogs.
+Labelsight identifies vinyl records from photos. Photograph the front cover, back cover and centre label (and, if you like, the runout etching and barcode) and Labelsight suggests the most likely pressings, estimates the condition and shows price suggestions from Discogs.
 
 WHAT YOU GET FROM EACH SCAN
 • Pressing match: the top candidate pressings with label, catalogue number, country and year, each with a confidence score. If we're not sure, you pick.
@@ -21,7 +21,7 @@ WHAT YOU GET FROM EACH SCAN
 • Value: price suggestions from Discogs for your copy's condition, shown as a low to high range with the date. When Discogs has no price, the app says "No price available" and links to the record on Discogs.
 
 WORKS FOR OLDER RECORDS TOO
-Most records from before about 1980 have no barcode. VinylVault doesn't need one: it reads the cover, the label text and the runout.
+Most records from before about 1980 have no barcode. Labelsight doesn't need one: it reads the cover, the label text and the runout.
 
 YOUR COLLECTION
 Save records to your collection, add notes and folders, filter by artist, genre, decade, condition or value, and export to CSV or PDF. Your collection stays on your phone.

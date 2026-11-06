@@ -15,10 +15,10 @@ export function AiConsent({ visible, onAllow, onCancel }: { visible: boolean; on
           <ScrollView contentContainerStyle={{ padding: spacing.xl, gap: spacing.md }}>
             <Text variant="title">Your photos are analysed by AI</Text>
             <Text variant="body">
-              To identify your record and estimate its condition, VinylVault sends the photos you take or choose to <Text variant="bodyStrong">Claude, an AI service run by Anthropic</Text>.
+              To identify your record and estimate its condition, Labelsight sends the photos you take or choose to <Text variant="bodyStrong">Claude, an AI service run by Anthropic</Text>.
             </Text>
             <Text variant="body">
-              Anthropic analyses them for VinylVault as our service provider and isn’t allowed to use them to train its AI. The VinylVault server doesn’t save your photos. Please
+              Anthropic analyses them for Labelsight as our service provider and isn’t allowed to use them to train its AI. The Labelsight server doesn’t save your photos. Please
               photograph records, not people or documents.
             </Text>
             <Text variant="body">

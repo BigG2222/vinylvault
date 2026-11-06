@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "VinylVault",
+    "name": "Labelsight",
     "slug": "vinylvault",
     "scheme": "vinylvault",
     "version": "1.0.0",
@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.glenhankin.vinylvault",
       "supportsTablet": false,
       "infoPlist": {
-        "NSCameraUsageDescription": "VinylVault uses the camera to photograph records and read barcodes for identification, grading and pressing checks.",
+        "NSCameraUsageDescription": "Labelsight uses the camera to photograph records and read barcodes for identification, grading and pressing checks.",
         "ITSAppUsesNonExemptEncryption": false
       },
       "buildNumber": "4",
@@ -77,7 +77,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "VinylVault uses the camera to photograph records and read barcodes for identification, grading and pressing checks.",
+          "cameraPermission": "Labelsight uses the camera to photograph records and read barcodes for identification, grading and pressing checks.",
           "barcodeScannerEnabled": true,
           "recordAudioAndroid": false,
           "microphonePermission": false
@@ -100,8 +100,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "VinylVault opens photos you choose so it can identify and check a record.",
-          "cameraPermission": "VinylVault uses the camera to photograph records and read barcodes for identification, grading and pressing checks."
+          "photosPermission": "Labelsight opens photos you choose so it can identify and check a record.",
+          "cameraPermission": "Labelsight uses the camera to photograph records and read barcodes for identification, grading and pressing checks."
         }
       ]
     ],

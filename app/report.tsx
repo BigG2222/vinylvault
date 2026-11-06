@@ -27,7 +27,7 @@ function notify(title: string, body: string, buttons: { text: string; onPress?: 
 }
 
 /**
- * Sends the report to the VinylVault server (Google Play's AI-generated content
+ * Sends the report to the Labelsight server (Google Play's AI-generated content
  * policy asks for in-app reporting of AI results). No photos are sent: only the
  * reason, the note and which record the result named.
  */
@@ -65,10 +65,10 @@ export default function Report() {
     const sent = await sendReport(reason, note, identity ? `${identity.artist} – ${identity.title} (${identity.year})` : '');
     setSending(false);
     if (sent) {
-      notify('Thanks for telling us', 'Reports help us improve VinylVault’s results.', [{ text: 'Done', onPress: () => router.back() }]);
+      notify('Thanks for telling us', 'Reports help us improve Labelsight’s results.', [{ text: 'Done', onPress: () => router.back() }]);
     } else {
       const label = REASONS.find((r) => r.key === reason)?.label ?? 'Wrong result';
-      const mail = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`VinylVault: ${label}`)}&body=${encodeURIComponent(`${identity ? `${identity.artist} – ${identity.title}\n\n` : ''}${note}`)}`;
+      const mail = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`Labelsight: ${label}`)}&body=${encodeURIComponent(`${identity ? `${identity.artist} – ${identity.title}\n\n` : ''}${note}`)}`;
       notify('Couldn’t send the report', 'Check your connection, or email it to us instead.', [
         { text: 'Email it', onPress: () => void Linking.openURL(mail) },
         { text: 'Cancel', onPress: () => undefined },
@@ -83,7 +83,7 @@ export default function Report() {
         <IconButton icon="close" label="Close" onPress={() => router.back()} />
       </Row>
       <Text variant="body" tone="secondary">
-        VinylVault uses AI to identify and check records, and it can get things wrong. Tell us what's off: reports help us improve results for everyone.
+        Labelsight uses AI to identify and check records, and it can get things wrong. Tell us what's off: reports help us improve results for everyone.
       </Text>
 
       {(reason === 'wrong_release' || reason === 'wrong_pressing') && hasAlternates && (

@@ -71,7 +71,7 @@ export default function RootLayout() {
 export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Promise<void> }) {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 24, paddingTop: 80, gap: 16 }}>
-      <Text style={{ color: colors.text, fontSize: 22, fontWeight: '700' }}>VinylVault hit a problem</Text>
+      <Text style={{ color: colors.text, fontSize: 22, fontWeight: '700' }}>Labelsight hit a problem</Text>
       <Text style={{ color: colors.text, fontSize: 15 }}>Please screenshot this screen and send it to support.</Text>
       <Text selectable style={{ color: colors.text, fontSize: 13, fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }) }}>
         {describeError(error)}

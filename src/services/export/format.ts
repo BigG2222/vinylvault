@@ -62,7 +62,7 @@ export function collectionToHtml(records: CollectionRecord[], now = Date.now()):
     th{text-align:left;border-bottom:2px solid #111;padding:6px 4px;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
     td{border-bottom:1px solid #e5e5e5;padding:8px 4px;vertical-align:top}
   </style></head><body>
-    <h1>VinylVault Collection</h1>
+    <h1>Labelsight Collection</h1>
     <div class="m">${records.length} records · Exported ${formatDate(new Date(now).toISOString(), true)}</div>
     <p class="m"><strong>${EXPORT_PRICE_NOTE}</strong></p>
     <table><thead><tr><th>Record</th><th>Pressing (AI estimate)</th><th>Media / sleeve</th><th>Link</th></tr></thead><tbody>${rows}</tbody></table>

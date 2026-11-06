@@ -45,7 +45,7 @@ export default function Home() {
       <Row style={{ justifyContent: 'space-between' }}>
         <View>
           <Text variant="label" tone="gold">
-            VinylVault
+            Labelsight
           </Text>
           <Text variant="title">Ready to spin</Text>
         </View>

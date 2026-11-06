@@ -55,7 +55,7 @@ function PaywallScreen() {
   const monthly = plans?.find((p) => p.id === 'monthly');
   const yearly = plans?.find((p) => p.id === 'yearly');
   const savings = monthly && yearly ? Math.round((1 - yearly.price / (monthly.price * 12)) * 100) : 0;
-  const head = (reason && REASONS[reason]) || { title: 'VinylVault Premium', body: 'Deeper pressing checks, no limits, and tools for serious collections.' };
+  const head = (reason && REASONS[reason]) || { title: 'Labelsight Premium', body: 'Deeper pressing checks, no limits, and tools for serious collections.' };
 
   const buy = async () => {
     if (!plan) return;
